@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  geo-db:
+    image: mysql:8.0
+    container_name: sanos_salvos_geo_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: sanos_salvos_geo_db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306" # Mapeado al 3307 en el host para evitar conflictos si ms-mascotas usa el 3306
+    volumes:
+      - geo_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ms-geo:
+    build: .
+    container_name: sanos_salvos_ms_geo
+    restart: always
+    ports:
+      - "8082:8082"
+    environment:
+      - MYSQL_HOST=geo-db
+      - MYSQL_PORT=3306
+      - MYSQL_DB=sanos_salvos_geo_db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      # Si es necesario pasar más variables de entorno (como Auth0 config si en un futuro se agregan), colócalas aquí.
+    depends_on:
+      geo-db:
+        condition: service_healthy
+
+volumes:
+  geo_db_data:

@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  mysql-coincidencias:
+    image: mysql:8.0
+    container_name: mysql-coincidencias
+    environment:
+      MYSQL_DATABASE: sanos_salvos_coincidencias_db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3308:3306" # Mapeado al puerto 3308 en la máquina host según arquitectura
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  ms-coincidencias:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ms-coincidencias
+    ports:
+      - "8083:8083"
+    environment:
+      # Conexión a la base de datos dentro de la red Docker
+      - DB_HOST=mysql-coincidencias
+      - DB_PORT=3306 
+      - DB_USER=root
+      - DB_PASSWORD=root
+        # Si corres ms-mascotas y ms-geo fuera de docker o en otra red, host.docker.internal resuelve a tu localhost principal
+      - MS_MASCOTAS_URL=http://host.docker.internal:8081
+      - MS_GEO_URL=http://host.docker.internal:8082
+    depends_on:
+      mysql-coincidencias:
+        condition: service_healthy
+    restart: unless-stopped

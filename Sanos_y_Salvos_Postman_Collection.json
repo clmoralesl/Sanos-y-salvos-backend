@@ -1,0 +1,339 @@
+{
+  "info": {
+    "name": "Sanos y Salvos - Backend Centralizado Completo",
+    "description": "Colección centralizada con TODOS los endpoints implementados, apuntando al API Gateway y los microservicios.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "API Gateway (Puerto 8080) - RUTAS OFICIALES",
+      "description": "El Gateway enruta usando sufijos hacia cada MS. Quitamos el .authenticated() de Spring Security temporalmente para no exigir un Bearer Token real.",
+      "item": [
+        {
+          "name": "🐾 MS Mascotas (Prefijo: /api/mascotas)",
+          "item": [
+            {
+              "name": "👩 Usuarios",
+              "item": [
+                {
+                  "name": "[Usuario] Registrar Usuario",
+                  "request": {
+                    "method": "POST",
+                    "header": [{"key": "Content-Type", "value": "application/json"}],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"auth0Id\": \"auth0|local_dummy_001\",\n  \"nombre\": \"Maria Perez\",\n  \"email\": \"maria@mail.com\",\n  \"telefono\": \"555-5555\",\n  \"idTipoCuenta\": 1,\n  \"idOrganizacion\": null\n}"
+                    },
+                    "url": "http://localhost:8080/api/mascotas/v1/usuarios/registro"
+                  }
+                },
+                {
+                  "name": "[Usuario] Ver Mi Perfil",
+                  "request": {
+                    "method": "GET",
+                    "header": [{"key": "X-Auth0-Id", "value": "auth0|local_dummy_001"}],
+                    "url": "http://localhost:8080/api/mascotas/v1/usuarios/me"
+                  }
+                },
+                {
+                  "name": "[Usuario] Actualizar Mi Perfil",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {"key": "X-Auth0-Id", "value": "auth0|local_dummy_001"},
+                      {"key": "Content-Type", "value": "application/json"}
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"auth0Id\": \"auth0|local_dummy_001\",\n  \"nombre\": \"Juan Perez Editado\",\n  \"email\": \"juanitoperez@ejemplo.com\",\n  \"telefono\": \"999-9999\",\n  \"idTipoCuenta\": 1\n}"
+                    },
+                    "url": "http://localhost:8080/api/mascotas/v1/usuarios/me"
+                  }
+                },
+                {
+                  "name": "[Usuario] Eliminar Mi Perfil",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [{"key": "X-Auth0-Id", "value": "auth0|local_dummy_001"}],
+                    "url": "http://localhost:8080/api/mascotas/v1/usuarios/me"
+                  }
+                },
+                {
+                  "name": "[Admin] Listar Todos los Usuarios",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": "http://localhost:8080/api/mascotas/v1/usuarios"
+                  }
+                },
+                {
+                  "name": "[Admin] Ver Usuario por ID",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": "http://localhost:8080/api/mascotas/v1/usuarios/1"
+                  }
+                },
+                {
+                  "name": "[Admin] Actualizar Usuario por ID",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"}
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"auth0Id\": \"auth0|local_dummy_001\",\n  \"nombre\": \"Usuario Modificado por Admin\",\n  \"email\": \"admin.mod@mail.com\",\n  \"telefono\": \"000-0000\",\n  \"idTipoCuenta\": 1\n}"
+                    },
+                    "url": "http://localhost:8080/api/mascotas/v1/usuarios/1"
+                  }
+                },
+                {
+                  "name": "[Admin] Eliminar Usuario por ID",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": "http://localhost:8080/api/mascotas/v1/usuarios/1"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "🐕 Mascotas",
+              "item": [
+                {
+                  "name": "Listar Mascotas",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": "http://localhost:8080/api/mascotas/v1/mascotas"
+                  }
+                },
+                {
+                  "name": "Ver Mascota por ID",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": "http://localhost:8080/api/mascotas/v1/mascotas/1"
+                  }
+                },
+                {
+                  "name": "Crear Mascota",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "X-Auth0-Id", "value": "auth0|local_dummy_001"}
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"nombreMascota\": \"Bobby\",\n  \"descripcion\": \"Cachorro muy tranquilo\",\n  \"idRaza\": 3,\n  \"idTamanio\": 1,\n  \"idsCaracteristicas\": [1, 2, 5],\n  \"urlsFotografias\": [\"https://s3.aws.com/fotobobby1.jpg\"]\n}"
+                    },
+                    "url": "http://localhost:8080/api/mascotas/v1/mascotas"
+                  }
+                },
+                {
+                  "name": "Actualizar Mascota",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "X-Auth0-Id", "value": "auth0|local_dummy_001"}
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"nombreMascota\": \"Bobby Editado\"\n}"
+                    },
+                    "url": "http://localhost:8080/api/mascotas/v1/mascotas/1"
+                  }
+                },
+                {
+                  "name": "Eliminar Mascota",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [{"key": "X-Auth0-Id", "value": "auth0|local_dummy_001"}],
+                    "url": "http://localhost:8080/api/mascotas/v1/mascotas/1"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "📢 Reportes",
+              "item": [
+                {
+                  "name": "Listar Todos los Reportes",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": "http://localhost:8080/api/mascotas/v1/reportes"
+                  }
+                },
+                {
+                  "name": "Ver Reporte por ID",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": "http://localhost:8080/api/mascotas/v1/reportes/1"
+                  }
+                },
+                {
+                  "name": "Crear Reporte",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "X-Auth0-Id", "value": "auth0|local_dummy_001"}
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"idTipoReporte\": 1,\n  \"idMascota\": 1,\n  \"idUbicacionReporte\": null\n}"
+                    },
+                    "url": "http://localhost:8080/api/mascotas/v1/reportes"
+                  }
+                },
+                {
+                  "name": "Cerrar Reporte",
+                  "request": {
+                    "method": "PUT",
+                    "header": [{"key": "X-Auth0-Id", "value": "auth0|local_dummy_001"}],
+                    "url": "http://localhost:8080/api/mascotas/v1/reportes/1/cerrar"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "🏢 Organizaciones",
+              "item": [
+                {
+                  "name": "Listar Organizaciones",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": "http://localhost:8080/api/mascotas/v1/organizaciones"
+                  }
+                },
+                {
+                  "name": "Ver Organizacion por ID",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": "http://localhost:8080/api/mascotas/v1/organizaciones/1"
+                  }
+                },
+                {
+                  "name": "Crear Organizacion",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"}
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"nombreOrganizacion\": \"Fundacion Patitas\",\n  \"direccion\": \"Av. Siempre Viva 123\"\n}"
+                    },
+                    "url": "http://localhost:8080/api/mascotas/v1/organizaciones"
+                  }
+                },
+                {
+                  "name": "Actualizar Organizacion",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"}
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"nombreOrganizacion\": \"Fundacion Patitas Editada\",\n  \"direccion\": \"Av. Siempre Viva 123\"\n}"
+                    },
+                    "url": "http://localhost:8080/api/mascotas/v1/organizaciones/1"
+                  }
+                },
+                {
+                  "name": "Eliminar Organizacion",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": "http://localhost:8080/api/mascotas/v1/organizaciones/1"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "🌍 MS Geo (Prefijo: /api/geo)",
+          "item": [
+            {
+              "name": "Obtener Regiones",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "http://localhost:8080/api/geo/v1/catalogos-geo/regiones"
+              }
+            },
+            {
+              "name": "Obtener Comunas por Región",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "http://localhost:8080/api/geo/v1/catalogos-geo/regiones/1/comunas"
+              }
+            },
+            {
+              "name": "Crear Ubicación (Transaccional)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {"key": "Content-Type", "value": "application/json"},
+                  {"key": "X-Auth0-Id", "value": "auth0|local_dummy_001"}
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"latitud\": -33.4489,\n  \"longitud\": -70.6693,\n  \"idComuna\": 5\n}"
+                },
+                "url": "http://localhost:8080/api/geo/v1/ubicaciones"
+              }
+            },
+            {
+              "name": "Test de Índices H3",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "http://localhost:8080/api/geo/v1/h3-test/indice?latitud=-33.4489&longitud=-70.6693"
+              }
+            }
+          ]
+        },
+        {
+          "name": "🔎 MS Coincidencias (Prefijo: /api/coincidencias)",
+          "item": [
+            {
+              "name": "Gatillar Motor Interno",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": "http://localhost:8080/api/coincidencias/v1/coincidencias/trigger/1"
+              }
+            },
+            {
+              "name": "Consultar Posibles Hallazgos (para una mascota perdida)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "http://localhost:8080/api/coincidencias/v1/coincidencias/perdida/1"
+              }
+            },
+            {
+              "name": "Consultar Posibles Pérdidas (para un perro/gato hallado)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "http://localhost:8080/api/coincidencias/v1/coincidencias/hallazgo/1"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

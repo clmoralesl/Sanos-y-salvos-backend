@@ -1,0 +1,57 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Reemplazar con el issuer real de Auth0 (ej. https://tu-tenant.auth0.com/)
+          issuer-uri: ${AUTH0_ISSUER_URI:https://dev-sanosysalvos.us.auth0.com/}
+  cloud:
+    gateway:
+      default-filters:
+        # - TokenRelay
+        # En producción: Inyecta el X-Auth0-Id mapeando el 'sub' (subject) del JWT a la cabecera
+        # - name: AddRequestHeader
+        #   args:
+        #     name: X-Auth0-Id
+        #     value: "{#jwt.subject}"
+      routes:
+        # Microservicio de Mascotas
+        - id: ms-mascotas
+          uri: ${MS_MASCOTAS_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/mascotas/**
+          filters:
+            - RewritePath=/api/mascotas/(?<segment>.*), /api/$\{segment}
+            
+        # Microservicio de Geolocalización
+        - id: ms-geo
+          uri: ${MS_GEO_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/geo/**
+          filters:
+            - RewritePath=/api/geo/(?<segment>.*), /api/$\{segment}
+            # Rate limiting simple usando CircuitBreaker/Resilience (Placeholder)
+            # - name: RequestRateLimiter
+            #   args:
+            #     redis-rate-limiter.replenishRate: 10
+            #     redis-rate-limiter.burstCapacity: 20
+            #     redis-rate-limiter.requestedTokens: 1
+                
+        # Microservicio de Coincidencias
+        - id: ms-coincidencias
+          uri: ${MS_COINCIDENCIAS_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/coincidencias/**
+          filters:
+            - RewritePath=/api/coincidencias/(?<segment>.*), /api/$\{segment}
+
+# Configuración de Logging
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    org.springframework.security: DEBUG

@@ -1,0 +1,22 @@
+docker-compose up -d --build# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.iws
+
+# Logs
+*.log
+
+# Archivos Markdown (solicitado para no subirlos, excepto el README principal)
+*.md
+!README.md
+
+# Sistema Operativo
+.DS_Store
+Thumbs.db

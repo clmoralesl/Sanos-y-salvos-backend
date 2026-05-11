@@ -1,0 +1,40 @@
+name: CI/CD Sanos y Salvos Backend
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build all modules with Maven
+      run: mvn clean package -DskipTests
+
+    # Puedes agregar tests aquí si no se omiten (quitando -DskipTests)
+
+  docker_build:
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Build Docker images for Microservices
+      run: docker-compose build
+
+    # Si tuvieras un registry (Docker Hub o AWS ACR/GCR) agregarías comandos docker push acá.
