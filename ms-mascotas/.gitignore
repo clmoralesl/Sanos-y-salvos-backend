@@ -1,0 +1,16 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+log/
+**/.DS_Store
+.project
+.classpath
+.settings/
+.metadata/
+*.class
+*.log
+.idea/
+*.iws
+*.iml
+*.ipr
+HANDOFF_FRONTEND.md
+HANDOFF_MS_GEO.md
