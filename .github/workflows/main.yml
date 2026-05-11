@@ -35,6 +35,6 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Build Docker images for Microservices
-      run: docker-compose build
+      run: docker compose build
 
     # Si tuvieras un registry (Docker Hub o AWS ACR/GCR) agregarías comandos docker push acá.
