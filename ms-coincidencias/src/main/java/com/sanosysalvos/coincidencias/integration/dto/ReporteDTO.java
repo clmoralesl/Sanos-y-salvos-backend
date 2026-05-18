@@ -5,7 +5,8 @@ import lombok.Data;
 @Data
 public class ReporteDTO {
     private Long id;
-    private String tipoReporte; // PERDIDA o HALLAZGO
+    private String tipoReporte; 
     private Long ubicacionId;
     private MascotaDTO mascota;
 }
+

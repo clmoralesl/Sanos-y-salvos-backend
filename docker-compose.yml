@@ -36,6 +36,8 @@ services:
       - MYSQL_DB=sanos_salvos_mascotas_db
       - MYSQL_USER=root
       - MYSQL_PASSWORD=root
+      - MS_GEO_URL=http://ms-geo:8082
+      - MS_COINCIDENCIAS_URL=http://ms-coincidencias:8083
     depends_on:
       mysql-mascotas:
         condition: service_healthy
@@ -146,10 +148,29 @@ services:
       - MS_MASCOTAS_URL=http://ms-mascotas:8081
       - MS_GEO_URL=http://ms-geo:8082
       - MS_COINCIDENCIAS_URL=http://ms-coincidencias:8083
+      - BFF_URL=http://bff-sanosysalvos:8084
     depends_on:
       - ms-mascotas
       - ms-geo
       - ms-coincidencias
+      - bff-sanosysalvos
+    networks:
+      - sanosysalvos-network
+
+  # ==========================================
+  # BFF (Backend For Frontend)
+  # ==========================================
+  bff-sanosysalvos:
+    build:
+      context: ./bff-sanosysalvos
+      dockerfile: Dockerfile
+    container_name: bff-sanosysalvos
+    environment:
+      - MS_MASCOTAS_URL=http://ms-mascotas:8081
+      - MS_GEO_URL=http://ms-geo:8082
+    depends_on:
+      - ms-mascotas
+      - ms-geo
     networks:
       - sanosysalvos-network
 

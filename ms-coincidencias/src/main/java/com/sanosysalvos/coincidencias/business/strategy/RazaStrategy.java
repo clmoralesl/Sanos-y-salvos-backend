@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RazaStrategy implements SimilitudStrategy {
+
     
-    // Aporta un máximo de 30% a la similitud si es de la misma raza
     private static final double MAX_PUNTAJE = 30.0;
 
     @Override
@@ -17,3 +17,4 @@ public class RazaStrategy implements SimilitudStrategy {
         return 0.0;
     }
 }
+

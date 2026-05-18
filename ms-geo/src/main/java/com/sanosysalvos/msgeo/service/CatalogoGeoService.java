@@ -9,3 +9,4 @@ public interface CatalogoGeoService {
     List<Region> obtenerRegiones();
     List<Comuna> obtenerComunasPorRegion(Long idRegion);
 }
+

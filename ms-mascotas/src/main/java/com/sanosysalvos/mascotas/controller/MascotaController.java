@@ -14,15 +14,17 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/mascotas")
+@RequestMapping("/mascotas/v1/mascotas")
 @RequiredArgsConstructor
 public class MascotaController {
 
     private final MascotaService mascotaService;
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createMascota(@Valid @RequestBody MascotaRequestDTO request) {
-        MascotaResponseDTO data = mascotaService.createMascota(request);
+    public ResponseEntity<Map<String, Object>> createMascota(
+            @RequestHeader("X-Auth0-Id") String auth0Id,
+            @Valid @RequestBody MascotaRequestDTO request) {
+        MascotaResponseDTO data = mascotaService.createMascota(request, auth0Id);
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Mascota guardada correctamente");
         response.put("data", data);
@@ -39,9 +41,17 @@ public class MascotaController {
         return ResponseEntity.ok(mascotaService.getAllMascotas());
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<List<MascotaResponseDTO>> getMisMascotas(@RequestHeader("X-Auth0-Id") String auth0Id) {
+        return ResponseEntity.ok(mascotaService.getMisMascotas(auth0Id));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateMascota(@PathVariable Long id, @Valid @RequestBody MascotaRequestDTO request) {
-        MascotaResponseDTO data = mascotaService.updateMascota(id, request);
+    public ResponseEntity<Map<String, Object>> updateMascota(
+            @RequestHeader("X-Auth0-Id") String auth0Id,
+            @PathVariable Long id,
+            @Valid @RequestBody MascotaRequestDTO request) {
+        MascotaResponseDTO data = mascotaService.updateMascota(id, request, auth0Id);
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Mascota actualizada correctamente");
         response.put("data", data);
@@ -56,3 +66,4 @@ public class MascotaController {
         return ResponseEntity.ok(response);
     }
 }
+

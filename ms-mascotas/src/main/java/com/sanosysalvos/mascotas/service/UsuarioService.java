@@ -9,9 +9,10 @@ public interface UsuarioService {
     UsuarioResponseDTO actualizarUsuario(String auth0Id, UsuarioRequestDTO request);
     void eliminarUsuario(String auth0Id);
 
-    // Métodos administrativos
+    
     java.util.List<UsuarioResponseDTO> obtenerTodosLosUsuarios();
     UsuarioResponseDTO obtenerUsuarioPorId(Long id);
     UsuarioResponseDTO actualizarUsuarioPorId(Long id, UsuarioRequestDTO request);
     void eliminarUsuarioPorId(Long id);
 }
+

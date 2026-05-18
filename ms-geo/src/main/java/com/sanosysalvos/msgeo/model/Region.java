@@ -22,3 +22,4 @@ public class Region {
     @Column(name = "nombre_region", nullable = false, length = 100)
     private String nombre;
 }
+

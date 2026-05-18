@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ReporteResponseDTO {
     private Long idReporte;
-    private LocalDateTime fechaReporte;
+    private LocalDateTime fechaRegistro;
+    private LocalDateTime fechaIncidente;
     private Long idUbicacionReporte;
     private String tipoReporte;
     private String estadoReporte;
@@ -22,3 +23,4 @@ public class ReporteResponseDTO {
     private Long idMascota;
     private String nombreMascota;
 }
+

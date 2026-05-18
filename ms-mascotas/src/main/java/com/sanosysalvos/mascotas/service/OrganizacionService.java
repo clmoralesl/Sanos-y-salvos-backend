@@ -12,3 +12,4 @@ public interface OrganizacionService {
     OrganizacionResponseDTO actualizarOrganizacion(Long id, OrganizacionRequestDTO request);
     void eliminarOrganizacion(Long id);
 }
+

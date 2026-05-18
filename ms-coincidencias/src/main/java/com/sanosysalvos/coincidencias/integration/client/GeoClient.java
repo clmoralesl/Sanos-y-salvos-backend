@@ -13,3 +13,4 @@ public interface GeoClient {
     @GetMapping("/api/v1/ubicaciones/{id}/cercanas")
     List<Long> obtenerUbicacionesCercanas(@PathVariable("id") Long id, @RequestParam("radio") Integer radio);
 }
+

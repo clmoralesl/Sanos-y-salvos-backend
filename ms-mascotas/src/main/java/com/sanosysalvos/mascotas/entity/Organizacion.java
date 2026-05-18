@@ -21,4 +21,8 @@ public class Organizacion {
 
     @Column(name = "direccion")
     private String direccion;
+
+    @Column(name = "telefono")
+    private String telefono;
 }
+

@@ -8,3 +8,4 @@ import org.springframework.stereotype.Repository;
 public interface EstadoReporteRepository extends JpaRepository<EstadoReporte, Long> {
     EstadoReporte findByDescripcion(String descripcion);
 }
+

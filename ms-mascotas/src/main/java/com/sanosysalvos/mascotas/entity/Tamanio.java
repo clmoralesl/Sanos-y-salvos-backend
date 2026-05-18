@@ -19,3 +19,4 @@ public class Tamanio {
     @Column(name = "descripcion_tamanio")
     private String descripcionTamanio;
 }
+

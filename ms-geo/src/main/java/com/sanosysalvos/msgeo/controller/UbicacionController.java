@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/ubicaciones")
+@RequestMapping("/geo/v1/ubicaciones")
 @RequiredArgsConstructor
 public class UbicacionController {
 
@@ -21,13 +21,24 @@ public class UbicacionController {
     public ResponseEntity<Map<String, Object>> crearUbicacion(
             @RequestHeader("X-Auth0-Id") String auth0Id,
             @RequestBody UbicacionRequestDTO requestDTO) {
-        
+
         Long idUbicacion = ubicacionService.crearUbicacion(requestDTO);
-        
+
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Ubicación guardada correctamente");
         response.put("idUbicacion", idUbicacion);
-        
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> obtenerUbicacion(@PathVariable("id") Long id) {
+        var ubicacion = ubicacionService.obtenerUbicacionPorId(id);
+        if (ubicacion != null) {
+            return ResponseEntity.ok(ubicacion);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
+

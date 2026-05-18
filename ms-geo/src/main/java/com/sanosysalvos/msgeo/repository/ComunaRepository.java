@@ -10,3 +10,4 @@ import java.util.List;
 public interface ComunaRepository extends JpaRepository<Comuna, Long> {
     List<Comuna> findByRegionId(Long regionId);
 }
+

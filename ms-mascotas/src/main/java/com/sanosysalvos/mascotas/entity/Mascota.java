@@ -32,6 +32,10 @@ public class Mascota {
     @JoinColumn(name = "id_tamanio")
     private Tamanio tamanio;
 
+    @ManyToOne
+    @JoinColumn(name = "id_usuario")
+    private Usuario usuario;
+
     @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Fotografia> fotografias;
 
@@ -43,3 +47,4 @@ public class Mascota {
     )
     private List<Caracteristica> caracteristicas;
 }
+

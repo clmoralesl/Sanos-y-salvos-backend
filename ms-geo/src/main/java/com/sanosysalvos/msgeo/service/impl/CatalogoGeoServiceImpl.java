@@ -27,3 +27,4 @@ public class CatalogoGeoServiceImpl implements CatalogoGeoService {
         return comunaRepository.findByRegionId(idRegion);
     }
 }
+

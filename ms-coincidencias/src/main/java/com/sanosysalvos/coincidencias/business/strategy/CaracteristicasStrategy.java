@@ -8,8 +8,8 @@ import java.util.List;
 
 @Component
 public class CaracteristicasStrategy implements SimilitudStrategy {
+
     
-    // Criterio de características físicas aporta hasta un 50% de la similitud
     private static final double MAX_PUNTAJE = 50.0;
 
     @Override
@@ -31,8 +31,9 @@ public class CaracteristicasStrategy implements SimilitudStrategy {
             }
         }
 
-        // Calcula proporción de coincidencias respecto a los atributos base reportados
+        
         double proporcion = (double) coincidencias / baseAtributos.size();
         return proporcion * MAX_PUNTAJE;
     }
 }
+

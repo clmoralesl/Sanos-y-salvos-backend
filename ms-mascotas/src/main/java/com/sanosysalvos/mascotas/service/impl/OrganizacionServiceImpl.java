@@ -22,8 +22,9 @@ public class OrganizacionServiceImpl implements OrganizacionService {
         Organizacion organizacion = Organizacion.builder()
                 .nombreOrganizacion(request.getNombreOrganizacion())
                 .direccion(request.getDireccion())
+                .telefono(request.getTelefono())
                 .build();
-        
+
         Organizacion guardada = organizacionRepository.save(organizacion);
         return mapToDTO(guardada);
     }
@@ -46,10 +47,11 @@ public class OrganizacionServiceImpl implements OrganizacionService {
     public OrganizacionResponseDTO actualizarOrganizacion(Long id, OrganizacionRequestDTO request) {
         Organizacion organizacion = organizacionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organización no encontrada con ID: " + id));
-        
+
         organizacion.setNombreOrganizacion(request.getNombreOrganizacion());
         organizacion.setDireccion(request.getDireccion());
-        
+        organizacion.setTelefono(request.getTelefono());
+
         Organizacion actualizada = organizacionRepository.save(organizacion);
         return mapToDTO(actualizada);
     }
@@ -66,6 +68,8 @@ public class OrganizacionServiceImpl implements OrganizacionService {
                 .idOrganizacion(organizacion.getIdOrganizacion())
                 .nombreOrganizacion(organizacion.getNombreOrganizacion())
                 .direccion(organizacion.getDireccion())
+                .telefono(organizacion.getTelefono())
                 .build();
     }
 }
+

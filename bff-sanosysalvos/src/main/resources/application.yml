@@ -1,0 +1,17 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: bff-sanosysalvos
+
+clients:
+  ms-mascotas:
+    url: ${MS_MASCOTAS_URL:http://localhost:8081}
+  ms-geo:
+    url: ${MS_GEO_URL:http://localhost:8082}
+
+logging:
+  level:
+    com.sanosysalvos.bff: DEBUG
+    org.springframework.web: INFO

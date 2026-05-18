@@ -8,3 +8,4 @@ public class UbicacionRequestDTO {
     private Double longitud;
     private Long idComuna;
 }
+

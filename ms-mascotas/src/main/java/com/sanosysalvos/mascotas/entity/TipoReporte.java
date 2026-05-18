@@ -19,3 +19,4 @@ public class TipoReporte {
     @Column(name = "descripcion")
     private String descripcion;
 }
+

@@ -28,3 +28,4 @@ public class Comuna {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Region region;
 }
+

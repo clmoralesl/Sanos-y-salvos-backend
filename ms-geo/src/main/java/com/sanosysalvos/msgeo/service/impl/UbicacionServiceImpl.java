@@ -24,7 +24,7 @@ public class UbicacionServiceImpl implements UbicacionService {
     private final ComunaRepository comunaRepository;
     private final ZonaGeoRepository zonaGeoRepository;
 
-    @Value("${h3.resolution.default:9}")
+    @Value("${h3.resolution.default:8}")
     private int defaultResolution;
 
     @Override
@@ -46,8 +46,20 @@ public class UbicacionServiceImpl implements UbicacionService {
                 .build();
 
         ubicacion = ubicacionReporteRepository.save(ubicacion);
-        
+
         return ubicacion.getId();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existeUbicacion(Long id) {
+        return ubicacionReporteRepository.existsById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UbicacionReporte obtenerUbicacionPorId(Long id) {
+        return ubicacionReporteRepository.findById(id).orElse(null);
     }
 
     private String calcularIndiceH3(double lat, double lng, int resolucion) {
@@ -59,3 +71,4 @@ public class UbicacionServiceImpl implements UbicacionService {
         }
     }
 }
+

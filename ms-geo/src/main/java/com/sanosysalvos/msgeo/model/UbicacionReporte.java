@@ -1,5 +1,6 @@
 package com.sanosysalvos.msgeo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,9 +28,12 @@ public class UbicacionReporte {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMUNA_id_comuna", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Comuna comuna;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ZONA_GEO_id_zona_geo")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private ZonaGeo zonaGeo;
 }
+

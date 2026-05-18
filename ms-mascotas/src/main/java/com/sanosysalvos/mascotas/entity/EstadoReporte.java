@@ -19,3 +19,4 @@ public class EstadoReporte {
     @Column(name = "descripcion")
     private String descripcion;
 }
+

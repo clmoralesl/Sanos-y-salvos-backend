@@ -13,4 +13,6 @@ public class OrganizacionResponseDTO {
     private Long idOrganizacion;
     private String nombreOrganizacion;
     private String direccion;
+    private String telefono;
 }
+

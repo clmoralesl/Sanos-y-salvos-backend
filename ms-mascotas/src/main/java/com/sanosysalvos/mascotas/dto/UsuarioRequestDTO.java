@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UsuarioRequestDTO {
 
-    // Auth0 mandará este ID al Gateway, y el Gateway (o el controlador) lo incluirá aquí
+    
     @NotBlank(message = "El identificador de Auth0 es obligatorio")
     private String auth0Id;
 
@@ -25,8 +25,9 @@ public class UsuarioRequestDTO {
     private String email;
 
     private String telefono;
+
     
-    // Estos pueden venir nulos si se registra por primera vez como usuario común
     private Long idOrganizacion;
     private Long idTipoCuenta;
 }
+

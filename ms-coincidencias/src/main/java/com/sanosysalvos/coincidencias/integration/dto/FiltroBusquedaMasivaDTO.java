@@ -11,7 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FiltroBusquedaMasivaDTO {
-    private String tipoReporteBuscado; // Si recibimos PERDIDA, buscamos HALLAZGO y viceversa
+    private String tipoReporteBuscado; 
     private String especie;
-    private List<Long> ubicacionesIds; // IDs de ubicaciones cercanas
+    private List<Long> ubicacionesIds; 
 }
+

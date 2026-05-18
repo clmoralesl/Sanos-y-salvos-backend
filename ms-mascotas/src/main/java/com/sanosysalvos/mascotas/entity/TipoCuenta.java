@@ -19,3 +19,4 @@ public class TipoCuenta {
     @Column(name = "descripcion")
     private String descripcion;
 }
+

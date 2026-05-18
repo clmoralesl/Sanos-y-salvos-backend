@@ -16,7 +16,7 @@ public class Usuario {
     @Column(name = "id_usuario")
     private Long idUsuario;
 
-    // Identificador global que vendrá desde Auth0 o el API Gateway
+    
     @Column(name = "auth0_id", unique = true, length = 100)
     private String auth0Id;
 
@@ -37,3 +37,4 @@ public class Usuario {
     @JoinColumn(name = "id_tipo_cuenta")
     private TipoCuenta tipoCuenta;
 }
+

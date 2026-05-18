@@ -44,3 +44,4 @@ public class Coincidencia {
     @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 }
+

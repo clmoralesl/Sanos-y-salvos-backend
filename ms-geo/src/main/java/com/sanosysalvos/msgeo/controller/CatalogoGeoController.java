@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/catalogos-geo")
+@RequestMapping("/geo/v1/catalogos-geo")
 @RequiredArgsConstructor
 public class CatalogoGeoController {
 
@@ -26,3 +26,4 @@ public class CatalogoGeoController {
         return ResponseEntity.ok(catalogoGeoService.obtenerComunasPorRegion(idRegion));
     }
 }
+

@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TamanioStrategy implements SimilitudStrategy {
+
     
-    // Aporta un máximo de 20% a la similitud si son del mismo tamaño
     private static final double MAX_PUNTAJE = 20.0;
 
     @Override
@@ -17,3 +17,4 @@ public class TamanioStrategy implements SimilitudStrategy {
         return 0.0;
     }
 }
+

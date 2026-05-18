@@ -5,7 +5,10 @@ import com.sanosysalvos.mascotas.dto.ReporteResponseDTO;
 import com.sanosysalvos.mascotas.entity.*;
 import com.sanosysalvos.mascotas.repository.*;
 import com.sanosysalvos.mascotas.service.ReporteService;
+import com.sanosysalvos.mascotas.client.CoincidenciaClient;
+import com.sanosysalvos.mascotas.client.UbicacionClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReporteServiceImpl implements ReporteService {
@@ -22,6 +26,8 @@ public class ReporteServiceImpl implements ReporteService {
     private final EstadoReporteRepository estadoReporteRepository;
     private final UsuarioRepository usuarioRepository;
     private final MascotaRepository mascotaRepository;
+    private final CoincidenciaClient coincidenciaClient;
+    private final UbicacionClient ubicacionClient;
 
     @Override
     @Transactional
@@ -35,22 +41,37 @@ public class ReporteServiceImpl implements ReporteService {
         TipoReporte tipoReporte = tipoReporteRepository.findById(request.getIdTipoReporte())
                 .orElseThrow(() -> new RuntimeException("Tipo de reporte no encontrado"));
 
-        // Por defecto el estado inicial es "Activo" o id=1
-        EstadoReporte estadoReporte = estadoReporteRepository.findByDescripcion("Activo");
-        if (estadoReporte == null) {
-            estadoReporte = estadoReporteRepository.findById(1L).orElseThrow(() -> new RuntimeException("Estado de reporte no encontrado"));
+        try {
+            var respuesta = ubicacionClient.obtenerUbicacion(request.getIdUbicacionReporte());
+            if (!respuesta.getStatusCode().is2xxSuccessful()) {
+                throw new RuntimeException("La ubicación especificada no existe en el sistema de geolocalización");
+            }
+        } catch (Exception e) {
+            log.error("Error al validar ubicación en ms-geo: {}", e.getMessage());
+            throw new RuntimeException("Rechazado: No se pudo validar la ubicación.");
+        }
+
+        EstadoReporte estadoActivo = estadoReporteRepository.findByDescripcion("Activo");
+        if (estadoActivo == null) {
+            estadoActivo = estadoReporteRepository.findById(1L).orElseThrow(() -> new RuntimeException("Estado Activo no encontrado"));
         }
 
         Reporte reporte = Reporte.builder()
-                .fechaReporte(LocalDateTime.now())
+                .fechaIncidente(request.getFechaIncidente())
                 .idUbicacionReporte(request.getIdUbicacionReporte())
                 .tipoReporte(tipoReporte)
-                .estadoReporte(estadoReporte)
+                .estadoReporte(estadoActivo)
                 .usuario(usuario)
                 .mascota(mascota)
                 .build();
 
         reporte = reporteRepository.save(reporte);
+
+        try {
+            coincidenciaClient.procesarReporteTrigger(reporte.getIdReporte());
+        } catch (Exception e) {
+            log.error("El ms-coincidencias falló: {}", e.getMessage());
+        }
 
         return mapearAResponse(reporte);
     }
@@ -81,20 +102,11 @@ public class ReporteServiceImpl implements ReporteService {
             throw new RuntimeException("No tiene permisos para cerrar este reporte");
         }
 
-        // Verificar si ya está cerrado para dar un feedback claro
-        if (reporte.getEstadoReporte() != null && 
-           (reporte.getEstadoReporte().getDescripcion().equalsIgnoreCase("Cerrado") || 
-            reporte.getEstadoReporte().getDescripcion().equalsIgnoreCase("Cerrado/Resuelto"))) {
-            throw new RuntimeException("El reporte ya se encontraba cerrado previamente");
-        }
-
         EstadoReporte estadoCerrado = estadoReporteRepository.findByDescripcion("Cerrado/Resuelto");
-        if(estadoCerrado != null) {
-            reporte.setEstadoReporte(estadoCerrado);
-        } else {
-             // Fallback
-             reporte.setEstadoReporte(estadoReporteRepository.findById(2L).orElseThrow(() -> new RuntimeException("Estado Cerrado no encontrado")));
+        if(estadoCerrado == null) {
+             estadoCerrado = estadoReporteRepository.findById(2L).orElseThrow(() -> new RuntimeException("Estado Cerrado no encontrado"));
         }
+        reporte.setEstadoReporte(estadoCerrado);
         reporte = reporteRepository.save(reporte);
         return mapearAResponse(reporte);
     }
@@ -118,7 +130,7 @@ public class ReporteServiceImpl implements ReporteService {
         reporte.setTipoReporte(tipoReporte);
         reporte.setMascota(mascota);
         reporte.setIdUbicacionReporte(request.getIdUbicacionReporte());
-        // Al actualizar no cambiamos fechaReporte ni el estado implícitamente, ni el usuario.
+        reporte.setFechaIncidente(request.getFechaIncidente());
 
         Reporte reporteActualizado = reporteRepository.save(reporte);
         return mapearAResponse(reporteActualizado);
@@ -140,7 +152,8 @@ public class ReporteServiceImpl implements ReporteService {
     private ReporteResponseDTO mapearAResponse(Reporte reporte) {
         return ReporteResponseDTO.builder()
                 .idReporte(reporte.getIdReporte())
-                .fechaReporte(reporte.getFechaReporte())
+                .fechaRegistro(reporte.getFechaRegistro())
+                .fechaIncidente(reporte.getFechaIncidente())
                 .idUbicacionReporte(reporte.getIdUbicacionReporte())
                 .tipoReporte(reporte.getTipoReporte() != null ? reporte.getTipoReporte().getDescripcion() : null)
                 .estadoReporte(reporte.getEstadoReporte() != null ? reporte.getEstadoReporte().getDescripcion() : null)

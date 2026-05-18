@@ -19,7 +19,9 @@ public class MascotaResponseDTO {
     private String nombreRaza;
     private String especieRaza;
     private String descripcionTamanio;
+    private String nombreDueno;
     private List<String> caracteristicas;
     private List<String> urlsFotografias;
 
 }
+

@@ -16,8 +16,9 @@ public class UsuarioResponseDTO {
     private String nombre;
     private String email;
     private String telefono;
+
     
-    // Retornamos nombres descriptivos en vez de IDs para mejor UX en el Fronend
     private String nombreOrganizacion;
     private String descripcionTipoCuenta;
 }
+

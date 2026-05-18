@@ -23,3 +23,4 @@ public class Fotografia {
     @JoinColumn(name = "id_mascota")
     private Mascota mascota;
 }
+

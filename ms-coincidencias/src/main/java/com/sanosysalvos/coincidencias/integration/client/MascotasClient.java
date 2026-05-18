@@ -19,3 +19,4 @@ public interface MascotasClient {
     @PostMapping("/api/v1/reportes/busqueda-masiva")
     List<ReporteDTO> buscarReportesCandidatos(@RequestBody FiltroBusquedaMasivaDTO filtro);
 }
+

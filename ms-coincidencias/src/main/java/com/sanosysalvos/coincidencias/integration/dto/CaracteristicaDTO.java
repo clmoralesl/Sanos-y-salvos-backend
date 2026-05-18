@@ -7,3 +7,4 @@ public class CaracteristicaDTO {
     private Long id;
     private String nombre;
 }
+

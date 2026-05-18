@@ -25,12 +25,12 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public UsuarioResponseDTO registrarUsuario(UsuarioRequestDTO request) {
-        // Verificar si el usuario ya existe para este Auth0 ID
+        
         if (usuarioRepository.existsByAuth0Id(request.getAuth0Id())) {
             throw new RuntimeException("El usuario con Auth0 ID " + request.getAuth0Id() + " ya está registrado.");
         }
 
-        // Si no envía tipo de cuenta, asignamos el ID 1 por defecto (Usuario Estándar)
+        
         Long idTipoCuenta = (request.getIdTipoCuenta() != null) ? request.getIdTipoCuenta() : 1L;
         TipoCuenta tipoCuenta = tipoCuentaRepository.findById(idTipoCuenta)
                 .orElseThrow(() -> new ResourceNotFoundException("Tipo de cuenta no encontrado con ID: " + idTipoCuenta));
@@ -60,7 +60,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuarioResponseDTO obtenerPerfilPorAuth0Id(String auth0Id) {
         Usuario usuario = usuarioRepository.findByAuth0Id(auth0Id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró un perfil para el Auth0 ID proporcionado."));
-        
+
         return mapToDTO(usuario);
     }
 
@@ -98,7 +98,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuarioRepository.delete(usuario);
     }
 
-    // --- Métodos Administrativos ---
 
     @Override
     @Transactional(readOnly = true)
@@ -132,7 +131,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                     .orElseThrow(() -> new ResourceNotFoundException("Organización no encontrada con ID: " + request.getIdOrganizacion()));
         }
 
-        // Se permite modificar el Auth0 ID u otros campos si es necesario (con cuidado)
+        
         usuario.setAuth0Id(request.getAuth0Id());
         usuario.setNombre(request.getNombre());
         usuario.setEmail(request.getEmail());
@@ -152,7 +151,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuarioRepository.delete(usuario);
     }
 
-    // Helper metod para convertir a DTO
+    
     private UsuarioResponseDTO mapToDTO(Usuario usuario) {
         return UsuarioResponseDTO.builder()
                 .idUsuario(usuario.getIdUsuario())
@@ -165,3 +164,4 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .build();
     }
 }
+

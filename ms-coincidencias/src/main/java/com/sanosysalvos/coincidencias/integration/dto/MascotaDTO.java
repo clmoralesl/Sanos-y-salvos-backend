@@ -12,3 +12,4 @@ public class MascotaDTO {
     private String tamanio;
     private List<CaracteristicaDTO> caracteristicasFisicas;
 }
+

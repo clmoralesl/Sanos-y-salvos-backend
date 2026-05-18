@@ -18,8 +18,16 @@ public class Reporte {
     @Column(name = "id_reporte")
     private Long idReporte;
 
-    @Column(name = "fecha_reporte")
-    private LocalDateTime fechaReporte;
+    @Column(name = "fecha_registro", nullable = false, updatable = false)
+    private LocalDateTime fechaRegistro;
+
+    @Column(name = "fecha_incidente", nullable = false)
+    private LocalDateTime fechaIncidente;
+
+    @PrePersist
+    protected void onCreate() {
+        this.fechaRegistro = LocalDateTime.now();
+    }
 
     @Column(name = "id_ubicacion_reporte")
     private Long idUbicacionReporte;
@@ -40,3 +48,4 @@ public class Reporte {
     @JoinColumn(name = "id_mascota")
     private Mascota mascota;
 }
+

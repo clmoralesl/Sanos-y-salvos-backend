@@ -30,3 +30,4 @@ public class MascotaRequestDTO {
 
     private List<String> urlsFotografias;
 }
+
