@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 public class TamanioStrategy implements SimilitudStrategy {
 
     
-    private static final double MAX_PUNTAJE = 20.0;
+    private static final double MAX_PUNTAJE = 30.0;
 
     @Override
     public double calcularPuntaje(MascotaDTO base, MascotaDTO candidato) {

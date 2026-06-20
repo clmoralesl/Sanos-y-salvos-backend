@@ -16,7 +16,7 @@ public class Fotografia {
     @Column(name = "id_fotografia")
     private Long idFotografia;
 
-    @Column(name = "url_fotografia")
+    @Column(name = "url_fotografia", columnDefinition = "LONGTEXT")
     private String urlFotografia;
 
     @ManyToOne

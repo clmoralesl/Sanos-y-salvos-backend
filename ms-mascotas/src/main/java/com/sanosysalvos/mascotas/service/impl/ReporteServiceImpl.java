@@ -1,5 +1,6 @@
 package com.sanosysalvos.mascotas.service.impl;
 
+import com.sanosysalvos.mascotas.dto.FiltroBusquedaMasivaDTO;
 import com.sanosysalvos.mascotas.dto.ReporteRequestDTO;
 import com.sanosysalvos.mascotas.dto.ReporteResponseDTO;
 import com.sanosysalvos.mascotas.entity.*;
@@ -11,7 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,10 +69,24 @@ public class ReporteServiceImpl implements ReporteService {
 
         reporte = reporteRepository.save(reporte);
 
-        try {
-            coincidenciaClient.procesarReporteTrigger(reporte.getIdReporte());
-        } catch (Exception e) {
-            log.error("El ms-coincidencias falló: {}", e.getMessage());
+        final Long reporteId = reporte.getIdReporte();
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    try {
+                        coincidenciaClient.procesarReporteTrigger(reporteId);
+                    } catch (Exception e) {
+                        log.error("El ms-coincidencias fallo: {}", e.getMessage());
+                    }
+                }
+            });
+        } else {
+            try {
+                coincidenciaClient.procesarReporteTrigger(reporteId);
+            } catch (Exception e) {
+                log.error("El ms-coincidencias fallo: {}", e.getMessage());
+            }
         }
 
         return mapearAResponse(reporte);
@@ -149,6 +165,21 @@ public class ReporteServiceImpl implements ReporteService {
         reporteRepository.delete(reporte);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReporteResponseDTO> buscarReportesCandidatos(FiltroBusquedaMasivaDTO filtro) {
+        log.info("Buscando reportes candidatos para tipo: {}, especie: {} en {} ubicaciones", 
+                filtro.getTipoReporteBuscado(), filtro.getEspecie(), filtro.getUbicacionesIds().size());
+        
+        return reporteRepository.findByTipoReporte_DescripcionIgnoreCaseAndMascota_Raza_Especie_NombreEspecieIgnoreCaseAndIdUbicacionReporteIn(
+                filtro.getTipoReporteBuscado(),
+                filtro.getEspecie(),
+                filtro.getUbicacionesIds()
+        ).stream()
+        .map(this::mapearAResponse)
+        .collect(Collectors.toList());
+    }
+
     private ReporteResponseDTO mapearAResponse(Reporte reporte) {
         return ReporteResponseDTO.builder()
                 .idReporte(reporte.getIdReporte())
@@ -161,6 +192,8 @@ public class ReporteServiceImpl implements ReporteService {
                 .nombreUsuario(reporte.getUsuario() != null ? reporte.getUsuario().getNombre() : null)
                 .idMascota(reporte.getMascota() != null ? reporte.getMascota().getIdMascota() : null)
                 .nombreMascota(reporte.getMascota() != null ? reporte.getMascota().getNombreMascota() : null)
+                .especieMascota(reporte.getMascota() != null && reporte.getMascota().getRaza() != null && reporte.getMascota().getRaza().getEspecie() != null 
+                        ? reporte.getMascota().getRaza().getEspecie().getNombreEspecie() : null)
                 .build();
     }
 }

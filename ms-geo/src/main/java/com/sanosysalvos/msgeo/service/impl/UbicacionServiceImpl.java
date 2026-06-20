@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +43,7 @@ public class UbicacionServiceImpl implements UbicacionService {
         UbicacionReporte ubicacion = UbicacionReporte.builder()
                 .latitud(request.getLatitud())
                 .longitud(request.getLongitud())
+                .direccionEspecifica(request.getDireccionEspecifica())
                 .comuna(comuna)
                 .zonaGeo(zonaGeo)
                 .build();
@@ -60,6 +63,24 @@ public class UbicacionServiceImpl implements UbicacionService {
     @Transactional(readOnly = true)
     public UbicacionReporte obtenerUbicacionPorId(Long id) {
         return ubicacionReporteRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> obtenerUbicacionesEnRadio(Long idUbicacion, int k) {
+        UbicacionReporte ubicacionBase = ubicacionReporteRepository.findById(idUbicacion)
+                .orElseThrow(() -> new RuntimeException("Ubicación no encontrada"));
+
+        try {
+            H3Core h3 = H3Core.newInstance();
+            List<String> h3IndicesCercanos = h3.gridDisk(ubicacionBase.getZonaGeo().getId(), k);
+
+            return ubicacionReporteRepository.findByZonaGeo_IdIn(h3IndicesCercanos).stream()
+                    .map(UbicacionReporte::getId)
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException("Error al procesar H3 para vecindad", e);
+        }
     }
 
     private String calcularIndiceH3(double lat, double lng, int resolucion) {

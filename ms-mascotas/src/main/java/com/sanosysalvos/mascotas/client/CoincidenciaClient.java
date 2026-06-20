@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @FeignClient(name = "ms-coincidencias", url = "${clients.ms-coincidencias.url}")
 public interface CoincidenciaClient {
 
-    @PostMapping("/api/v1/coincidencias/trigger/{reporteId}")
+    @PostMapping("/coincidencias/v1/coincidencias/trigger/{reporteId}")
     ResponseEntity<Object> procesarReporteTrigger(@PathVariable("reporteId") Long reporteId);
 
 }

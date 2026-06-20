@@ -22,5 +22,6 @@ public class ReporteResponseDTO {
     private String nombreUsuario;
     private Long idMascota;
     private String nombreMascota;
+    private String especieMascota;
 }
 

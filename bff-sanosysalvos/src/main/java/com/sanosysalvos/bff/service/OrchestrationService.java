@@ -1,5 +1,6 @@
 package com.sanosysalvos.bff.service;
 
+import com.sanosysalvos.bff.client.CoincidenciasClient;
 import com.sanosysalvos.bff.client.GeoClient;
 import com.sanosysalvos.bff.client.MascotasClient;
 import com.sanosysalvos.bff.dto.ReporteDetalleDTO;
@@ -18,6 +19,7 @@ public class OrchestrationService {
 
     private final MascotasClient mascotasClient;
     private final GeoClient geoClient;
+    private final CoincidenciasClient coincidenciasClient;
 
     public ReporteDetalleDTO obtenerDetalleCompleto(Long idReporte, String auth0Id) {
         try {
@@ -30,6 +32,52 @@ public class OrchestrationService {
             Map<String, Object> mascota = mascotasClient.obtenerMascota(idMascota);
             Map<String, Object> ubicacion = geoClient.obtenerUbicacion(idUbicacion);
             Map<String, Object> usuario = mascotasClient.obtenerUsuario(idUsuario);
+
+            List<Map<String, Object>> coincidenciasRaw = new ArrayList<>();
+            try {
+                if ("Mascota Perdida".equalsIgnoreCase(String.valueOf(reporte.get("tipoReporte")))) {
+                    coincidenciasRaw = coincidenciasClient.obtenerPorPerdida(idReporte);
+                } else {
+                    coincidenciasRaw = coincidenciasClient.obtenerPorHallazgo(idReporte);
+                }
+            } catch (Exception e) {
+                log.error("Error al obtener coincidencias: {}", e.getMessage());
+            }
+
+            List<ReporteDetalleDTO.CoincidenciaReporteDetalle> coincidencias = new ArrayList<>();
+            if (coincidenciasRaw != null) {
+                for (Map<String, Object> c : coincidenciasRaw) {
+                    try {
+                        Long matchPerdidaId = parseLong(c.get("reportePerdidaId"));
+                        Long matchHallazgoId = parseLong(c.get("reporteHallazgoId"));
+                        Long idMatchedReport = idReporte.equals(matchPerdidaId) ? matchHallazgoId : matchPerdidaId;
+
+                        Map<String, Object> matchedReport = mascotasClient.obtenerReporte(idMatchedReport, auth0Id);
+                        Long matchMascotaId = parseLong(matchedReport.get("idMascota"));
+                        Long matchUbicacionId = parseLong(matchedReport.get("idUbicacionReporte"));
+
+                        Map<String, Object> matchMascota = mascotasClient.obtenerMascota(matchMascotaId);
+                        Map<String, Object> matchUbicacion = geoClient.obtenerUbicacion(matchUbicacionId);
+
+                        coincidencias.add(ReporteDetalleDTO.CoincidenciaReporteDetalle.builder()
+                                .idReporte(idMatchedReport)
+                                .porcentajeSimilitud(parseDouble(c.get("porcentajeSimilitud")))
+                                .estado(String.valueOf(c.get("estado")))
+                                .nombreMascota(String.valueOf(matchMascota.get("nombreMascota")))
+                                .especie(matchMascota.get("especieRaza") != null ? matchMascota.get("especieRaza").toString() : "N/A")
+                                .raza(String.valueOf(matchMascota.get("nombreRaza")))
+                                .tamanio(String.valueOf(matchMascota.get("descripcionTamanio")))
+                                .fechaIncidente(String.valueOf(matchedReport.get("fechaIncidente")))
+                                .comuna(extractNestedString(matchUbicacion, "comuna", "nombre"))
+                                .region(extractNestedString(matchUbicacion, "comuna", "region", "nombre"))
+                                .direccionEspecifica(matchUbicacion.get("direccionEspecifica") != null ? String.valueOf(matchUbicacion.get("direccionEspecifica")) : "No especificada")
+                                .fotos(parseList(matchMascota.get("urlsFotografias")))
+                                .build());
+                    } catch (Exception e) {
+                        log.error("Error al procesar coincidencia: {}", e.getMessage());
+                    }
+                }
+            }
 
             return ReporteDetalleDTO.builder()
                 .idReporte(idReporte)
@@ -48,23 +96,28 @@ public class OrchestrationService {
                         .id(idMascota)
                         .nombre(String.valueOf(mascota.get("nombreMascota")))
                         .descripcion(String.valueOf(mascota.get("descripcion")))
+                        .colorPrimario(mascota.get("colorPrimario") != null ? String.valueOf(mascota.get("colorPrimario")) : "No especificado")
+                        .colorSecundario(mascota.get("colorSecundario") != null ? String.valueOf(mascota.get("colorSecundario")) : "No especificado")
                         .raza(String.valueOf(mascota.get("nombreRaza")))
                         .especie(mascota.get("especieRaza") != null ? mascota.get("especieRaza").toString() : "N/A")
                         .tamanio(String.valueOf(mascota.get("descripcionTamanio")))
                         .fotos(parseList(mascota.get("urlsFotografias")))
+                        .caracteristicas(parseList(mascota.get("caracteristicas")))
                         .build())
                 .ubicacion(ReporteDetalleDTO.UbicacionDetalle.builder()
                         .id(idUbicacion)
                         .latitud(parseDouble(ubicacion.get("latitud")))
                         .longitud(parseDouble(ubicacion.get("longitud")))
                         .comuna(extractNestedString(ubicacion, "comuna", "nombre"))
-                        .region(extractNestedString(ubicacion, "comuna", "region", "nombre_region"))
+                        .region(extractNestedString(ubicacion, "comuna", "region", "nombre"))
                         .codigoH3(extractNestedString(ubicacion, "zonaGeo", "id"))
+                        .direccionEspecifica(ubicacion.get("direccionEspecifica") != null ? String.valueOf(ubicacion.get("direccionEspecifica")) : "No especificada")
                         .build())
+                .coincidencias(coincidencias)
                 .build();
 
         } catch (Exception e) {
-            log.error("Error orquestación: {}", e.getMessage());
+            log.error("Error orquestacion: {}", e.getMessage());
             throw new RuntimeException("Error al orquestar: " + e.getMessage());
         }
     }

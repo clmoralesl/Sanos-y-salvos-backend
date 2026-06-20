@@ -157,9 +157,6 @@ services:
     networks:
       - sanosysalvos-network
 
-  # ==========================================
-  # BFF (Backend For Frontend)
-  # ==========================================
   bff-sanosysalvos:
     build:
       context: ./bff-sanosysalvos
@@ -168,9 +165,11 @@ services:
     environment:
       - MS_MASCOTAS_URL=http://ms-mascotas:8081
       - MS_GEO_URL=http://ms-geo:8082
+      - MS_COINCIDENCIAS_URL=http://ms-coincidencias:8083
     depends_on:
       - ms-mascotas
       - ms-geo
+      - ms-coincidencias
     networks:
       - sanosysalvos-network
 
