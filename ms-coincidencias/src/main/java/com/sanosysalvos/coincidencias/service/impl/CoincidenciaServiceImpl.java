@@ -26,52 +26,68 @@ public class CoincidenciaServiceImpl implements CoincidenciaService {
     private final MotorSimilitud motorSimilitud;
     private final CoincidenciaRepository repository;
 
-    private static final double UMBRAL_SIMILITUD = 60.0;
-    private static final int RADIO_BUSQUEDA_DEFAULT = 1;
+    private static final double UMBRAL_SIMILITUD = 40.0;
+    private static final int RADIO_BUSQUEDA_DEFAULT = 3;
     @Override
     @CircuitBreaker(name = "coincidenciasCB", fallbackMethod = "fallbackProcesarReporte")
     public void procesarReporte(Long reporteId) {
-        log.info("Iniciando procesamiento de coincidencias para el reporte ID: {}", reporteId);
+        log.info("Iniciando procesamiento de coincidencias para el reporte ID: {} (Radio H3 K=3, ~5km)", reporteId);
 
-        
         ReporteDTO reporteBase = mascotasClient.obtenerReportePorId(reporteId);
-        if (reporteBase == null || reporteBase.getUbicacionId() == null) {
+        if (reporteBase == null || reporteBase.getIdUbicacionReporte() == null) {
             log.warn("El reporte ID {} no existe o no tiene ubicacion asociada.", reporteId);
             return;
         }
 
-        
+        if (reporteBase.getIdMascota() == null) {
+            log.warn("El reporte ID {} no tiene mascota asociada.", reporteId);
+            return;
+        }
+
+        com.sanosysalvos.coincidencias.integration.dto.MascotaDTO mascotaBase = mascotasClient.obtenerMascotaPorId(reporteBase.getIdMascota());
+        if (mascotaBase == null) {
+            log.warn("No se pudo obtener la mascota ID {} para el reporte base.", reporteBase.getIdMascota());
+            return;
+        }
+
         List<Long> ubicacionesCercanas = geoClient.obtenerUbicacionesCercanas(
-                reporteBase.getUbicacionId(), RADIO_BUSQUEDA_DEFAULT);
+                reporteBase.getIdUbicacionReporte(), RADIO_BUSQUEDA_DEFAULT);
 
         if (ubicacionesCercanas == null || ubicacionesCercanas.isEmpty()) {
             log.info("No se encontraron ubicaciones cercanas para el reporte {}", reporteId);
             return;
         }
 
-        
-        String tipoBuscado = "PERDIDA".equalsIgnoreCase(reporteBase.getTipoReporte()) ? "HALLAZGO" : "PERDIDA";
+        boolean esPerdida = reporteBase.getTipoReporte() != null &&
+                reporteBase.getTipoReporte().toLowerCase().contains("perdida");
+        String tipoBuscado = esPerdida ? "Mascota Encontrada / Avistamiento" : "Mascota Perdida";
 
-        
         FiltroBusquedaMasivaDTO filtro = FiltroBusquedaMasivaDTO.builder()
                 .tipoReporteBuscado(tipoBuscado)
-                .especie(reporteBase.getMascota().getEspecie())
+                .especie(reporteBase.getEspecieMascota())
                 .ubicacionesIds(ubicacionesCercanas)
                 .build();
 
+        log.info("Llamando a ms-mascotas con filtro: {}", filtro);
         List<ReporteDTO> candidatos = mascotasClient.buscarReportesCandidatos(filtro);
+        log.info("Candidatos encontrados: {}", candidatos.size());
 
-        
         for (ReporteDTO candidato : candidatos) {
-            double similitud = motorSimilitud.evaluar(reporteBase.getMascota(), candidato.getMascota());
-            log.debug("Similitud entre reporte {} y {} es de {}%", reporteId, candidato.getId(), similitud);
+            if (candidato.getIdMascota() == null) {
+                continue;
+            }
+            com.sanosysalvos.coincidencias.integration.dto.MascotaDTO mascotaCandidato = mascotasClient.obtenerMascotaPorId(candidato.getIdMascota());
+            if (mascotaCandidato == null) {
+                continue;
+            }
+            log.info("Evaluando candidato reporte ID: {} con mascota ID: {}", candidato.getIdReporte(), candidato.getIdMascota());
+            double similitud = motorSimilitud.evaluar(mascotaBase, mascotaCandidato);
+            log.info("Similitud entre reporte {} y {} es de {}% (Umbral: {})", reporteId, candidato.getIdReporte(), similitud, UMBRAL_SIMILITUD);
 
-            
             if (similitud >= UMBRAL_SIMILITUD) {
-                Long perdidaId = "PERDIDA".equalsIgnoreCase(reporteBase.getTipoReporte()) ? reporteBase.getId() : candidato.getId();
-                Long hallazgoId = "HALLAZGO".equalsIgnoreCase(reporteBase.getTipoReporte()) ? reporteBase.getId() : candidato.getId();
+                Long perdidaId = esPerdida ? reporteBase.getIdReporte() : candidato.getIdReporte();
+                Long hallazgoId = esPerdida ? candidato.getIdReporte() : reporteBase.getIdReporte();
 
-                
                 if (!repository.existsByReportePerdidaIdAndReporteHallazgoId(perdidaId, hallazgoId)) {
                     Coincidencia nuevaCoincidencia = Coincidencia.builder()
                             .reportePerdidaId(perdidaId)

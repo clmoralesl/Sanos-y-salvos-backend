@@ -1,5 +1,6 @@
 package com.sanosysalvos.mascotas.service;
 
+import com.sanosysalvos.mascotas.dto.FiltroBusquedaMasivaDTO;
 import com.sanosysalvos.mascotas.dto.ReporteRequestDTO;
 import com.sanosysalvos.mascotas.dto.ReporteResponseDTO;
 import java.util.List;
@@ -11,4 +12,5 @@ public interface ReporteService {
     ReporteResponseDTO cerrarReporte(Long idReporte, String auth0Id);
     ReporteResponseDTO actualizarReporte(Long idReporte, ReporteRequestDTO request, String auth0Id);
     void eliminarReporte(Long idReporte, String auth0Id);
+    List<ReporteResponseDTO> buscarReportesCandidatos(FiltroBusquedaMasivaDTO filtro);
 }

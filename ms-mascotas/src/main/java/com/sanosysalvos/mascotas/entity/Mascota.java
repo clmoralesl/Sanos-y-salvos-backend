@@ -24,6 +24,12 @@ public class Mascota {
     @Column(name = "descripcion")
     private String descripcion;
 
+    @Column(name = "color_primario")
+    private String colorPrimario;
+
+    @Column(name = "color_secundario")
+    private String colorSecundario;
+
     @ManyToOne
     @JoinColumn(name = "id_raza")
     private Raza raza;

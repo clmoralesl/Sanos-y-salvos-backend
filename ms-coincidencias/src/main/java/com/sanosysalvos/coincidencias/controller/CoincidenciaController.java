@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/coincidencias")
+@RequestMapping("/coincidencias/v1/coincidencias")
 @RequiredArgsConstructor
 public class CoincidenciaController {
 

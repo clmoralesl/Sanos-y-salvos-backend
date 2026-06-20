@@ -26,6 +26,9 @@ public class UbicacionReporte {
     @Column(name = "longitud", nullable = false)
     private Double longitud;
 
+    @Column(name = "direccion_especifica", length = 255)
+    private String direccionEspecifica;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMUNA_id_comuna", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -36,4 +39,3 @@ public class UbicacionReporte {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private ZonaGeo zonaGeo;
 }
-

@@ -48,6 +48,8 @@ public class MascotaServiceImpl implements MascotaService {
         Mascota mascota = Mascota.builder()
                 .nombreMascota(request.getNombreMascota())
                 .descripcion(request.getDescripcion())
+                .colorPrimario(request.getColorPrimario())
+                .colorSecundario(request.getColorSecundario())
                 .raza(raza)
                 .tamanio(tamanio)
                 .usuario(usuario)
@@ -98,7 +100,6 @@ public class MascotaServiceImpl implements MascotaService {
         Mascota mascota = mascotaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Mascota no encontrada con id: " + id));
 
-        
         if (mascota.getUsuario() != null && !mascota.getUsuario().getAuth0Id().equals(auth0Id)) {
              throw new RuntimeException("No tienes permisos para editar esta mascota");
         }
@@ -116,12 +117,13 @@ public class MascotaServiceImpl implements MascotaService {
 
         mascota.setNombreMascota(request.getNombreMascota());
         mascota.setDescripcion(request.getDescripcion());
+        mascota.setColorPrimario(request.getColorPrimario());
+        mascota.setColorSecundario(request.getColorSecundario());
         mascota.setRaza(raza);
         mascota.setTamanio(tamanio);
         mascota.setCaracteristicas(caracteristicas);
 
         if (request.getUrlsFotografias() != null && !request.getUrlsFotografias().isEmpty()) {
-            
             mascota.getFotografias().clear();
             List<Fotografia> fotografias = request.getUrlsFotografias().stream()
                     .map(url -> Fotografia.builder()
@@ -151,6 +153,8 @@ public class MascotaServiceImpl implements MascotaService {
                 .idMascota(mascota.getIdMascota())
                 .nombreMascota(mascota.getNombreMascota())
                 .descripcion(mascota.getDescripcion())
+                .colorPrimario(mascota.getColorPrimario())
+                .colorSecundario(mascota.getColorSecundario())
                 .nombreRaza(mascota.getRaza() != null ? mascota.getRaza().getNombreRaza() : null)
                 .especieRaza((mascota.getRaza() != null && mascota.getRaza().getEspecie() != null) ? mascota.getRaza().getEspecie().getNombreEspecie() : null)
                 .descripcionTamanio(mascota.getTamanio() != null ? mascota.getTamanio().getDescripcionTamanio() : null)
@@ -162,4 +166,3 @@ public class MascotaServiceImpl implements MascotaService {
                 .build();
     }
 }
-

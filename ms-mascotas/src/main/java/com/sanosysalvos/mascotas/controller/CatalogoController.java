@@ -24,6 +24,11 @@ public class CatalogoController {
         return ResponseEntity.ok(catalogoService.obtenerRazas());
     }
 
+    @GetMapping("/especies")
+    public ResponseEntity<List<CatalogoResponseDTO>> obtenerEspecies() {
+        return ResponseEntity.ok(catalogoService.obtenerEspecies());
+    }
+
     @GetMapping("/tamanios")
     public ResponseEntity<List<CatalogoResponseDTO>> obtenerTamanios() {
         return ResponseEntity.ok(catalogoService.obtenerTamanios());

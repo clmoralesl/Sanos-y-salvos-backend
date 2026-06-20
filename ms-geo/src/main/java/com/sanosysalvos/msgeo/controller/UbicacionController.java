@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -39,6 +40,13 @@ public class UbicacionController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/{id}/cercanas")
+    public ResponseEntity<List<Long>> obtenerUbicacionesCercanas(
+            @PathVariable("id") Long id,
+            @RequestParam(value = "radio", defaultValue = "3") int radio) {
+        return ResponseEntity.ok(ubicacionService.obtenerUbicacionesEnRadio(id, radio));
     }
 }
 

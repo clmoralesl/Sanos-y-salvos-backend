@@ -28,6 +28,10 @@ public class MascotaRequestDTO {
 
     private List<Long> idsCaracteristicas;
 
+    private String colorPrimario;
+
+    private String colorSecundario;
+
     private List<String> urlsFotografias;
 }
 

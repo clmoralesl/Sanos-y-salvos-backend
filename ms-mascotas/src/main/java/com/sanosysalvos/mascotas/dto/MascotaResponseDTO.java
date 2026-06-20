@@ -20,6 +20,8 @@ public class MascotaResponseDTO {
     private String especieRaza;
     private String descripcionTamanio;
     private String nombreDueno;
+    private String colorPrimario;
+    private String colorSecundario;
     private List<String> caracteristicas;
     private List<String> urlsFotografias;
 

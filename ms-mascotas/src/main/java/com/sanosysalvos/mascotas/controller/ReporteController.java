@@ -1,5 +1,6 @@
 package com.sanosysalvos.mascotas.controller;
 
+import com.sanosysalvos.mascotas.dto.FiltroBusquedaMasivaDTO;
 import com.sanosysalvos.mascotas.dto.ReporteRequestDTO;
 import com.sanosysalvos.mascotas.dto.ReporteResponseDTO;
 import com.sanosysalvos.mascotas.service.ReporteService;
@@ -64,5 +65,10 @@ public class ReporteController {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Reporte " + id + " eliminado correctamente");
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/busqueda-masiva")
+    public ResponseEntity<List<ReporteResponseDTO>> buscarReportesCandidatos(@RequestBody FiltroBusquedaMasivaDTO filtro) {
+        return ResponseEntity.ok(reporteService.buscarReportesCandidatos(filtro));
     }
 }

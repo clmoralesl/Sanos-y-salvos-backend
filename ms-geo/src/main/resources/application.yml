@@ -24,7 +24,7 @@ spring:
 
 h3:
   resolution:
-    default: 8
+    default: 7
 
 management:
   endpoints:

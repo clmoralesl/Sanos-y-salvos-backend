@@ -10,7 +10,7 @@ import java.util.List;
 @FeignClient(name = "ms-geo", url = "${app.feign.ms-geo.url}")
 public interface GeoClient {
 
-    @GetMapping("/api/v1/ubicaciones/{id}/cercanas")
+    @GetMapping("/geo/v1/ubicaciones/{id}/cercanas")
     List<Long> obtenerUbicacionesCercanas(@PathVariable("id") Long id, @RequestParam("radio") Integer radio);
 }
 

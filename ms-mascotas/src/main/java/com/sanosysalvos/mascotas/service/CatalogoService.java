@@ -9,4 +9,5 @@ public interface CatalogoService {
     List<CatalogoResponseDTO> obtenerCaracteristicas();
     List<CatalogoResponseDTO> obtenerTiposReporte();
     List<CatalogoResponseDTO> obtenerTiposCuenta();
+    List<CatalogoResponseDTO> obtenerEspecies();
 }

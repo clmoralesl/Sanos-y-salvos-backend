@@ -15,21 +15,27 @@ public class CatalogoServiceImpl implements CatalogoService {
     private final CaracteristicaRepository caracteristicaRepository;
     private final TipoReporteRepository tipoReporteRepository;
     private final TipoCuentaRepository tipoCuentaRepository;
+    private final EspecieRepository especieRepository;
 
     public CatalogoServiceImpl(RazaRepository razaRepository, TamanioRepository tamanioRepository,
                                CaracteristicaRepository caracteristicaRepository, TipoReporteRepository tipoReporteRepository,
-                               TipoCuentaRepository tipoCuentaRepository) {
+                               TipoCuentaRepository tipoCuentaRepository, EspecieRepository especieRepository) {
         this.razaRepository = razaRepository;
         this.tamanioRepository = tamanioRepository;
         this.caracteristicaRepository = caracteristicaRepository;
         this.tipoReporteRepository = tipoReporteRepository;
         this.tipoCuentaRepository = tipoCuentaRepository;
+        this.especieRepository = especieRepository;
     }
 
     @Override
     public List<CatalogoResponseDTO> obtenerRazas() {
         return razaRepository.findAll().stream()
-                .map(r -> CatalogoResponseDTO.builder().id(r.getIdRaza()).descripcion(r.getNombreRaza()).build())
+                .map(r -> CatalogoResponseDTO.builder()
+                        .id(r.getIdRaza())
+                        .descripcion(r.getNombreRaza())
+                        .idEspecie(r.getEspecie() != null ? r.getEspecie().getIdEspecie() : null)
+                        .build())
                 .collect(Collectors.toList());
     }
 
@@ -58,6 +64,16 @@ public class CatalogoServiceImpl implements CatalogoService {
     public List<CatalogoResponseDTO> obtenerTiposCuenta() {
         return tipoCuentaRepository.findAll().stream()
                 .map(tc -> CatalogoResponseDTO.builder().id(tc.getIdTipoCuenta()).descripcion(tc.getDescripcion()).build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CatalogoResponseDTO> obtenerEspecies() {
+        return especieRepository.findAll().stream()
+                .map(e -> CatalogoResponseDTO.builder()
+                        .id(e.getIdEspecie())
+                        .descripcion(e.getNombreEspecie())
+                        .build())
                 .collect(Collectors.toList());
     }
 }

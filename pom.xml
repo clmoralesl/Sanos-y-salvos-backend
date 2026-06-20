@@ -17,6 +17,7 @@
         <module>ms-mascotas</module>
         <module>ms-geo</module>
         <module>ms-coincidencias</module>
+        <module>bff-sanosysalvos</module>
     </modules>
 
     <properties>
