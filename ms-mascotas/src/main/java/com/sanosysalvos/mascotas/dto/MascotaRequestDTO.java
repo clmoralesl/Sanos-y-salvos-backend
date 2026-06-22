@@ -33,5 +33,9 @@ public class MascotaRequestDTO {
     private String colorSecundario;
 
     private List<String> urlsFotografias;
+
+    private Boolean sinDueno;
+
+    private String edadAproximada;
 }
 

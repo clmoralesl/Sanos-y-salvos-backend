@@ -31,8 +31,11 @@ public class MascotaServiceImpl implements MascotaService {
     @Override
     @Transactional
     public MascotaResponseDTO createMascota(MascotaRequestDTO request, String auth0Id) {
-        Usuario usuario = usuarioRepository.findByAuth0Id(auth0Id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con Auth0Id: " + auth0Id));
+        Usuario usuario = null;
+        if (request.getSinDueno() == null || !request.getSinDueno()) {
+            usuario = usuarioRepository.findByAuth0Id(auth0Id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con Auth0Id: " + auth0Id));
+        }
 
         Raza raza = razaRepository.findById(request.getIdRaza())
                 .orElseThrow(() -> new ResourceNotFoundException("Raza no encontrada con ID: " + request.getIdRaza()));
@@ -54,6 +57,7 @@ public class MascotaServiceImpl implements MascotaService {
                 .tamanio(tamanio)
                 .usuario(usuario)
                 .caracteristicas(caracteristicas)
+                .edadAproximada(request.getEdadAproximada())
                 .build();
 
         if (request.getUrlsFotografias() != null && !request.getUrlsFotografias().isEmpty()) {
@@ -122,6 +126,7 @@ public class MascotaServiceImpl implements MascotaService {
         mascota.setRaza(raza);
         mascota.setTamanio(tamanio);
         mascota.setCaracteristicas(caracteristicas);
+        mascota.setEdadAproximada(request.getEdadAproximada());
 
         if (request.getUrlsFotografias() != null && !request.getUrlsFotografias().isEmpty()) {
             mascota.getFotografias().clear();
@@ -163,6 +168,7 @@ public class MascotaServiceImpl implements MascotaService {
                         mascota.getCaracteristicas().stream().map(Caracteristica::getDescripcion).collect(Collectors.toList()) : new ArrayList<>())
                 .urlsFotografias(mascota.getFotografias() != null ?
                         mascota.getFotografias().stream().map(Fotografia::getUrlFotografia).collect(Collectors.toList()) : new ArrayList<>())
+                .edadAproximada(mascota.getEdadAproximada())
                 .build();
     }
 }

@@ -42,6 +42,9 @@ public class Mascota {
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
 
+    @Column(name = "edad_aproximada")
+    private String edadAproximada;
+
     @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Fotografia> fotografias;
 
