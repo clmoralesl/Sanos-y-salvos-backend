@@ -149,6 +149,27 @@ public class ReporteServiceImpl implements ReporteService {
         reporte.setFechaIncidente(request.getFechaIncidente());
 
         Reporte reporteActualizado = reporteRepository.save(reporte);
+
+        final Long reporteId = reporteActualizado.getIdReporte();
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    try {
+                        coincidenciaClient.procesarReporteTrigger(reporteId);
+                    } catch (Exception e) {
+                        log.error("El ms-coincidencias fallo: {}", e.getMessage());
+                    }
+                }
+            });
+        } else {
+            try {
+                coincidenciaClient.procesarReporteTrigger(reporteId);
+            } catch (Exception e) {
+                log.error("El ms-coincidencias fallo: {}", e.getMessage());
+            }
+        }
+
         return mapearAResponse(reporteActualizado);
     }
 
@@ -171,7 +192,8 @@ public class ReporteServiceImpl implements ReporteService {
         log.info("Buscando reportes candidatos para tipo: {}, especie: {} en {} ubicaciones", 
                 filtro.getTipoReporteBuscado(), filtro.getEspecie(), filtro.getUbicacionesIds().size());
         
-        return reporteRepository.findByTipoReporte_DescripcionIgnoreCaseAndMascota_Raza_Especie_NombreEspecieIgnoreCaseAndIdUbicacionReporteIn(
+        return reporteRepository.findByEstadoReporte_DescripcionIgnoreCaseAndTipoReporte_DescripcionIgnoreCaseAndMascota_Raza_Especie_NombreEspecieIgnoreCaseAndIdUbicacionReporteIn(
+                "Activo",
                 filtro.getTipoReporteBuscado(),
                 filtro.getEspecie(),
                 filtro.getUbicacionesIds()

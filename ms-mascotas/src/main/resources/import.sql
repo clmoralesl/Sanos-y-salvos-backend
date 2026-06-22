@@ -87,9 +87,9 @@ INSERT INTO caracteristica (id_caracteristica, descripcion) VALUES (18, 'Cariño
 INSERT INTO caracteristica (id_caracteristica, descripcion) VALUES (19, 'Muy activo');
 INSERT INTO caracteristica (id_caracteristica, descripcion) VALUES (20, 'Lleva ropa / capa');
 
--- 5. Tipos de Cuenta
 INSERT INTO tipo_cuenta (id_tipo_cuenta, descripcion) VALUES (1, 'Usuario Estándar');
 INSERT INTO tipo_cuenta (id_tipo_cuenta, descripcion) VALUES (2, 'Organización / Refugio');
+INSERT INTO tipo_cuenta (id_tipo_cuenta, descripcion) VALUES (3, 'Administrador');
 
 -- 6. Tipos de Reporte
 INSERT INTO tipo_reporte (id_tipo_reporte, descripcion) VALUES (1, 'Mascota Perdida');
@@ -103,4 +103,5 @@ INSERT INTO organizacion (id_organizacion, nombre_organizacion, direccion, telef
 INSERT INTO usuario (id_usuario, auth0_id, nombre, email, telefono, id_organizacion, id_tipo_cuenta) VALUES (1, 'auth0|local_dummy_001', 'Juan Pérez', 'juan@sanosysalvos.cl', '+56988887777', NULL, 1);
 INSERT INTO usuario (id_usuario, auth0_id, nombre, email, telefono, id_organizacion, id_tipo_cuenta) VALUES (2, 'auth0|local_dummy_002', 'Valeska Guardia', 'valeska@sanosysalvos.cl', '+56999999999', NULL, 1);
 INSERT INTO usuario (id_usuario, auth0_id, nombre, email, telefono, id_organizacion, id_tipo_cuenta) VALUES (3, 'auth0|local_dummy_003', 'Claudio Morales', 'claudio@sanosysalvos.cl', '+56977777777', NULL, 1);
-INSERT INTO mascota (id_mascota, nombre_mascota, descripcion, color_primario, color_secundario, id_raza, id_tamanio, id_usuario) VALUES (1, 'Max', 'Labrador chocolate con mancha blanca en el pecho', 'Marrón', 'Blanco', 2, 3, 1);
+INSERT INTO usuario (id_usuario, auth0_id, nombre, email, telefono, id_organizacion, id_tipo_cuenta) VALUES (4, 'google-oauth2|106589703694374122699', 'Claudio Morales Linares', 'claudiomoraleseiv@gmail.com', '', NULL, 3);
+INSERT INTO mascota (id_mascota, nombre_mascota, descripcion, color_primario, color_secundario, id_raza, id_tamanio, id_usuario, edad_aproximada) VALUES (1, 'Max', 'Labrador chocolate con mancha blanca en el pecho', 'Marrón', 'Blanco', 2, 3, 1, '1-3 años');

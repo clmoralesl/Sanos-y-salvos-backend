@@ -4,23 +4,23 @@ import com.sanosysalvos.coincidencias.integration.dto.MascotaDTO;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TamanioStrategy implements SimilitudStrategy {
+public class EdadStrategy implements SimilitudStrategy {
 
-    private static final double MAX_PUNTAJE = 30.0;
-    private static final double PARTIAL_PUNTAJE = 15.0;
+    private static final double MAX_PUNTAJE = 20.0;
+    private static final double PARTIAL_PUNTAJE = 10.0;
 
     @Override
     public double calcularPuntaje(MascotaDTO base, MascotaDTO candidato) {
-        if (base.getTamanio() == null || candidato.getTamanio() == null) {
+        if (base.getEdadAproximada() == null || candidato.getEdadAproximada() == null) {
             return 0.0;
         }
 
-        if (base.getTamanio().equalsIgnoreCase(candidato.getTamanio())) {
+        if (base.getEdadAproximada().equalsIgnoreCase(candidato.getEdadAproximada())) {
             return MAX_PUNTAJE;
         }
 
-        int valBase = getScaleValue(base.getTamanio());
-        int valCandidato = getScaleValue(candidato.getTamanio());
+        int valBase = getScaleValue(base.getEdadAproximada());
+        int valCandidato = getScaleValue(candidato.getEdadAproximada());
 
         if (valBase > 0 && valCandidato > 0 && Math.abs(valBase - valCandidato) == 1) {
             return PARTIAL_PUNTAJE;
@@ -31,19 +31,18 @@ public class TamanioStrategy implements SimilitudStrategy {
 
     private int getScaleValue(String label) {
         String normalized = label.toLowerCase();
-        if (normalized.contains("peque") || normalized.contains("pequeño")) {
+        if (normalized.contains("0-1")) {
             return 1;
         }
-        if (normalized.contains("median")) {
+        if (normalized.contains("1-3")) {
             return 2;
         }
-        if (normalized.contains("grand")) {
+        if (normalized.contains("3-7")) {
             return 3;
         }
-        if (normalized.contains("gigant")) {
+        if (normalized.contains("7+")) {
             return 4;
         }
         return 0;
     }
 }
-

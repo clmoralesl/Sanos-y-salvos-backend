@@ -53,6 +53,9 @@ public class OrchestrationService {
                         Long idMatchedReport = idReporte.equals(matchPerdidaId) ? matchHallazgoId : matchPerdidaId;
 
                         Map<String, Object> matchedReport = mascotasClient.obtenerReporte(idMatchedReport, auth0Id);
+                        if (matchedReport == null || !"Activo".equalsIgnoreCase(String.valueOf(matchedReport.get("estadoReporte")))) {
+                            continue;
+                        }
                         Long matchMascotaId = parseLong(matchedReport.get("idMascota"));
                         Long matchUbicacionId = parseLong(matchedReport.get("idUbicacionReporte"));
 
@@ -101,6 +104,7 @@ public class OrchestrationService {
                         .raza(String.valueOf(mascota.get("nombreRaza")))
                         .especie(mascota.get("especieRaza") != null ? mascota.get("especieRaza").toString() : "N/A")
                         .tamanio(String.valueOf(mascota.get("descripcionTamanio")))
+                        .edadAproximada(mascota.get("edadAproximada") != null ? String.valueOf(mascota.get("edadAproximada")) : "No especificada")
                         .fotos(parseList(mascota.get("urlsFotografias")))
                         .caracteristicas(parseList(mascota.get("caracteristicas")))
                         .build())

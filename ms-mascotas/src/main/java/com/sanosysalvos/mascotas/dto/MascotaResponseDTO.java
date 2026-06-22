@@ -24,6 +24,7 @@ public class MascotaResponseDTO {
     private String colorSecundario;
     private List<String> caracteristicas;
     private List<String> urlsFotografias;
+    private String edadAproximada;
 
 }
 

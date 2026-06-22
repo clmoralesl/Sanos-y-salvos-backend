@@ -30,4 +30,13 @@ public class MascotaDTO {
 
     @JsonProperty("caracteristicas")
     private List<String> caracteristicas;
+
+    @JsonProperty("edadAproximada")
+    private String edadAproximada;
+
+    @JsonProperty("colorPrimario")
+    private String colorPrimario;
+
+    @JsonProperty("colorSecundario")
+    private String colorSecundario;
 }
