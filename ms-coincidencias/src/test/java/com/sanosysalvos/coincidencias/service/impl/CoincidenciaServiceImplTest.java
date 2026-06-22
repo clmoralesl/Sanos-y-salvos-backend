@@ -209,5 +209,60 @@ void noDebeProcesarCuandoMascotaBaseNoExiste() {
 
     verifyNoInteractions(geoClient);
     verify(repository, never()).save(any());
-}   
+}
+   @Test
+void noDebeProcesarCuandoReporteNoExiste() {
+
+    when(mascotasClient.obtenerReportePorId(1L))
+            .thenReturn(null);
+
+    service.procesarReporte(1L);
+
+    verifyNoInteractions(geoClient);
+    verify(repository, never()).save(any());
+}
+
+@Test
+void noDebeProcesarCuandoReporteNoTieneMascota() {
+
+    ReporteDTO reporteBase = new ReporteDTO();
+    reporteBase.setIdReporte(1L);
+    reporteBase.setIdUbicacionReporte(100L);
+    reporteBase.setIdMascota(null);
+
+    when(mascotasClient.obtenerReportePorId(1L))
+            .thenReturn(reporteBase);
+
+    service.procesarReporte(1L);
+
+    verifyNoInteractions(geoClient);
+    verify(repository, never()).save(any());
+}
+
+@Test
+void noDebeGuardarCuandoNoHayUbicacionesCercanas() {
+
+    ReporteDTO reporteBase = new ReporteDTO();
+    reporteBase.setIdReporte(1L);
+    reporteBase.setIdMascota(10L);
+    reporteBase.setIdUbicacionReporte(100L);
+
+    MascotaDTO mascotaBase = MascotaDTO.builder()
+            .id(10L)
+            .build();
+
+    when(mascotasClient.obtenerReportePorId(1L))
+            .thenReturn(reporteBase);
+
+    when(mascotasClient.obtenerMascotaPorId(10L))
+            .thenReturn(mascotaBase);
+
+    when(geoClient.obtenerUbicacionesCercanas(100L, 6))
+            .thenReturn(List.of());
+
+    service.procesarReporte(1L);
+
+    verify(mascotasClient, never()).buscarReportesCandidatos(any());
+    verify(repository, never()).save(any());
+}
 }
