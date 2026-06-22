@@ -11,14 +11,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MotorSimilitud {
 
-    
     private final List<SimilitudStrategy> estrategias;
 
-
     public double evaluar(MascotaDTO base, MascotaDTO candidato) {
-        return estrategias.stream()
+        double total = estrategias.stream()
                 .mapToDouble(estrategia -> estrategia.calcularPuntaje(base, candidato))
                 .sum();
+        return Math.min(100.0, total);
     }
 }
-

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ColorStrategy implements SimilitudStrategy {
 
-    private static final double MAX_PUNTAJE = 25.0;
+    private static final double MAX_PUNTAJE = 35.0;
 
     @Override
     public double calcularPuntaje(MascotaDTO base, MascotaDTO candidato) {
@@ -22,7 +22,12 @@ public class ColorStrategy implements SimilitudStrategy {
         double score = 0.0;
 
         if (p1.equals(p2) && !p1.isEmpty()) {
-            score += 20.0;
+            score += 30.0;
+            if (s1.equals(s2) && !s1.isEmpty() && !s1.contains("ningun")) {
+                score += 5.0;
+            }
+        } else if (areColorsSimilar(p1, p2)) {
+            score += 15.0;
             if (s1.equals(s2) && !s1.isEmpty() && !s1.contains("ningun")) {
                 score += 5.0;
             }
@@ -34,10 +39,36 @@ public class ColorStrategy implements SimilitudStrategy {
                 score += 20.0;
             } else if (p1MatchesS2 || p2MatchesS1) {
                 score += 10.0;
+            } else if (areColorsSimilar(p1, s2) || areColorsSimilar(p2, s1)) {
+                score += 8.0;
             }
         }
 
         return score;
+    }
+
+    private boolean areColorsSimilar(String c1, String c2) {
+        if (c1.isEmpty() || c2.isEmpty()) {
+            return false;
+        }
+        if (c1.equals(c2)) {
+            return true;
+        }
+        if ((c1.equals("negro") && c2.equals("gris")) || (c1.equals("gris") && c2.equals("negro"))) {
+            return true;
+        }
+        if ((c1.equals("cafe") && (c2.equals("amarillo") || c2.equals("naranja"))) 
+                || ((c2.equals("cafe") && (c1.equals("amarillo") || c1.equals("naranja"))))) {
+            return true;
+        }
+        if ((c1.equals("amarillo") && (c2.equals("crema") || c2.equals("naranja"))) 
+                || ((c2.equals("amarillo") && (c1.equals("crema") || c1.equals("naranja"))))) {
+            return true;
+        }
+        if ((c1.equals("blanco") && c2.equals("crema")) || (c1.equals("crema") && c2.equals("blanco"))) {
+            return true;
+        }
+        return false;
     }
 
     private String normalize(String val) {

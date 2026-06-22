@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class RazaStrategy implements SimilitudStrategy {
 
-    private static final double MAX_PUNTAJE = 25.0;
-    private static final double PARTIAL_PUNTAJE = 12.5;
+    private static final double MAX_PUNTAJE = 40.0;
+    private static final double PARTIAL_PUNTAJE = 25.0;
 
     @Override
     public double calcularPuntaje(MascotaDTO base, MascotaDTO candidato) {
