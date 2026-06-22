@@ -160,4 +160,54 @@ class CoincidenciaServiceImplTest {
         verifyNoInteractions(geoClient);
         verify(repository, never()).save(any());
     }
+@Test
+void noDebeGuardarCoincidenciaSiYaExiste() {
+
+    ReporteDTO reporteBase = new ReporteDTO();
+    reporteBase.setIdReporte(1L);
+    reporteBase.setIdMascota(10L);
+    reporteBase.setIdUbicacionReporte(100L);
+    reporteBase.setTipoReporte("Mascota Perdida");
+    reporteBase.setEspecieMascota("Perro");
+
+    ReporteDTO candidato = new ReporteDTO();
+    candidato.setIdReporte(2L);
+    candidato.setIdMascota(20L);
+
+    MascotaDTO mascotaBase = MascotaDTO.builder().id(10L).build();
+    MascotaDTO mascotaCandidato = MascotaDTO.builder().id(20L).build();
+
+    when(mascotasClient.obtenerReportePorId(1L)).thenReturn(reporteBase);
+    when(mascotasClient.obtenerMascotaPorId(10L)).thenReturn(mascotaBase);
+    when(geoClient.obtenerUbicacionesCercanas(100L, 6)).thenReturn(List.of(100L));
+    when(mascotasClient.buscarReportesCandidatos(any())).thenReturn(List.of(candidato));
+    when(mascotasClient.obtenerMascotaPorId(20L)).thenReturn(mascotaCandidato);
+    when(motorSimilitud.evaluar(mascotaBase, mascotaCandidato)).thenReturn(90.0);
+
+    when(repository.existsByReportePerdidaIdAndReporteHallazgoId(1L, 2L))
+            .thenReturn(true);
+
+    service.procesarReporte(1L);
+
+    verify(repository, never()).save(any());
+} 
+@Test
+void noDebeProcesarCuandoMascotaBaseNoExiste() {
+
+    ReporteDTO reporteBase = new ReporteDTO();
+    reporteBase.setIdReporte(1L);
+    reporteBase.setIdMascota(10L);
+    reporteBase.setIdUbicacionReporte(100L);
+
+    when(mascotasClient.obtenerReportePorId(1L))
+            .thenReturn(reporteBase);
+
+    when(mascotasClient.obtenerMascotaPorId(10L))
+            .thenReturn(null);
+
+    service.procesarReporte(1L);
+
+    verifyNoInteractions(geoClient);
+    verify(repository, never()).save(any());
+}   
 }
