@@ -27,11 +27,14 @@ public class CoincidenciaServiceImpl implements CoincidenciaService {
     private final CoincidenciaRepository repository;
 
     private static final double UMBRAL_SIMILITUD = 40.0;
-    private static final int RADIO_BUSQUEDA_DEFAULT = 3;
+
+    @org.springframework.beans.factory.annotation.Value("${coincidencias.radio-busqueda:6}")
+    private int radioBusqueda;
+
     @Override
     @CircuitBreaker(name = "coincidenciasCB", fallbackMethod = "fallbackProcesarReporte")
     public void procesarReporte(Long reporteId) {
-        log.info("Iniciando procesamiento de coincidencias para el reporte ID: {} (Radio H3 K=3, ~5km)", reporteId);
+        log.info("Iniciando procesamiento de coincidencias para el reporte ID: {} (Radio H3 K={}, ~5km)", reporteId, radioBusqueda);
 
         ReporteDTO reporteBase = mascotasClient.obtenerReportePorId(reporteId);
         if (reporteBase == null || reporteBase.getIdUbicacionReporte() == null) {
@@ -51,7 +54,7 @@ public class CoincidenciaServiceImpl implements CoincidenciaService {
         }
 
         List<Long> ubicacionesCercanas = geoClient.obtenerUbicacionesCercanas(
-                reporteBase.getIdUbicacionReporte(), RADIO_BUSQUEDA_DEFAULT);
+                reporteBase.getIdUbicacionReporte(), radioBusqueda);
 
         if (ubicacionesCercanas == null || ubicacionesCercanas.isEmpty()) {
             log.info("No se encontraron ubicaciones cercanas para el reporte {}", reporteId);
