@@ -53,6 +53,9 @@ public class OrchestrationService {
                         Long idMatchedReport = idReporte.equals(matchPerdidaId) ? matchHallazgoId : matchPerdidaId;
 
                         Map<String, Object> matchedReport = mascotasClient.obtenerReporte(idMatchedReport, auth0Id);
+                        if (matchedReport == null || !"Activo".equalsIgnoreCase(String.valueOf(matchedReport.get("estadoReporte")))) {
+                            continue;
+                        }
                         Long matchMascotaId = parseLong(matchedReport.get("idMascota"));
                         Long matchUbicacionId = parseLong(matchedReport.get("idUbicacionReporte"));
 

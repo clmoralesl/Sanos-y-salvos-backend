@@ -192,7 +192,8 @@ public class ReporteServiceImpl implements ReporteService {
         log.info("Buscando reportes candidatos para tipo: {}, especie: {} en {} ubicaciones", 
                 filtro.getTipoReporteBuscado(), filtro.getEspecie(), filtro.getUbicacionesIds().size());
         
-        return reporteRepository.findByTipoReporte_DescripcionIgnoreCaseAndMascota_Raza_Especie_NombreEspecieIgnoreCaseAndIdUbicacionReporteIn(
+        return reporteRepository.findByEstadoReporte_DescripcionIgnoreCaseAndTipoReporte_DescripcionIgnoreCaseAndMascota_Raza_Especie_NombreEspecieIgnoreCaseAndIdUbicacionReporteIn(
+                "Activo",
                 filtro.getTipoReporteBuscado(),
                 filtro.getEspecie(),
                 filtro.getUbicacionesIds()
