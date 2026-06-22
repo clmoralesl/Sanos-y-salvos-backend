@@ -101,6 +101,7 @@ public class OrchestrationService {
                         .raza(String.valueOf(mascota.get("nombreRaza")))
                         .especie(mascota.get("especieRaza") != null ? mascota.get("especieRaza").toString() : "N/A")
                         .tamanio(String.valueOf(mascota.get("descripcionTamanio")))
+                        .edadAproximada(mascota.get("edadAproximada") != null ? String.valueOf(mascota.get("edadAproximada")) : "No especificada")
                         .fotos(parseList(mascota.get("urlsFotografias")))
                         .caracteristicas(parseList(mascota.get("caracteristicas")))
                         .build())

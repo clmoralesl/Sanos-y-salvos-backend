@@ -47,6 +47,7 @@ public class ReporteDetalleDTO {
         private String raza;
         private String especie;
         private String tamanio;
+        private String edadAproximada;
         private List<String> fotos;
         private List<String> caracteristicas;
     }
