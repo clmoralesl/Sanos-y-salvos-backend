@@ -137,7 +137,7 @@ services:
       - MS_GEO_URL=http://ms-geo:8082
       - MS_COINCIDENCIAS_URL=http://ms-coincidencias:8083
       - BFF_URL=http://bff-sanosysalvos:8084
-      - AUTH0_ISSUER_URI=https://dev-7gjg4drf585ieieb.us.auth0.com/
+      - AUTH0_ISSUER_URI=${AUTH0_ISSUER_URI}
     depends_on:
       - ms-mascotas
       - ms-geo
