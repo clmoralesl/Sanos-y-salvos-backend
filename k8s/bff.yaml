@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bff-sanosysalvos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bff-sanosysalvos
+  template:
+    metadata:
+      labels:
+        app: bff-sanosysalvos
+    spec:
+      containers:
+      - name: bff-sanosysalvos
+        image: ECR_REGISTRY_PLACEHOLDER/sanos-salvos-bff:IMAGE_TAG_PLACEHOLDER
+        env:
+        - name: MS_MASCOTAS_URL
+          value: http://ms-mascotas:8081
+        - name: MS_GEO_URL
+          value: http://ms-geo:8082
+        - name: MS_COINCIDENCIAS_URL
+          value: http://ms-coincidencias:8083
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
+        ports:
+        - containerPort: 8084
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bff-sanosysalvos
+spec:
+  selector:
+    app: bff-sanosysalvos
+  ports:
+  - port: 8084
+    targetPort: 8084

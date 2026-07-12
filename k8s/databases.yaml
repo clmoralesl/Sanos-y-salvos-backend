@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-mascotas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-mascotas
+  template:
+    metadata:
+      labels:
+        app: mysql-mascotas
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+        - name: MYSQL_DATABASE
+          value: sanos_salvos_mascotas_db
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-mascotas
+spec:
+  selector:
+    app: mysql-mascotas
+  ports:
+  - port: 3306
+    targetPort: 3306
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-geo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-geo
+  template:
+    metadata:
+      labels:
+        app: mysql-geo
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+        - name: MYSQL_DATABASE
+          value: sanos_salvos_geo_db
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-geo
+spec:
+  selector:
+    app: mysql-geo
+  ports:
+  - port: 3306
+    targetPort: 3306
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-coincidencias
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-coincidencias
+  template:
+    metadata:
+      labels:
+        app: mysql-coincidencias
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+        - name: MYSQL_DATABASE
+          value: sanos_salvos_coincidencias_db
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-coincidencias
+spec:
+  selector:
+    app: mysql-coincidencias
+  ports:
+  - port: 3306
+    targetPort: 3306

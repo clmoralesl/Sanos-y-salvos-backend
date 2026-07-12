@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-mascotas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-mascotas
+  template:
+    metadata:
+      labels:
+        app: ms-mascotas
+    spec:
+      containers:
+      - name: ms-mascotas
+        image: ECR_REGISTRY_PLACEHOLDER/sanos-salvos-ms-mascotas:IMAGE_TAG_PLACEHOLDER
+        env:
+        - name: MYSQL_HOST
+          value: mysql-mascotas
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_DB
+          value: sanos_salvos_mascotas_db
+        - name: MYSQL_USER
+          value: root
+        - name: MYSQL_PASSWORD
+          value: root
+        - name: MS_GEO_URL
+          value: http://ms-geo:8082
+        - name: MS_COINCIDENCIAS_URL
+          value: http://ms-coincidencias:8083
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        ports:
+        - containerPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-mascotas
+spec:
+  selector:
+    app: ms-mascotas
+  ports:
+  - port: 8081
+    targetPort: 8081
