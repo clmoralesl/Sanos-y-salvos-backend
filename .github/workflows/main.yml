@@ -22,7 +22,7 @@ jobs:
         cache: maven
 
     - name: Build all modules with Maven
-      run: mvn clean package -DskipTests
+      run: mvn clean package
 
     # Puedes agregar tests aquí si no se omiten (quitando -DskipTests)
 

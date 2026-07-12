@@ -1,9 +1,6 @@
 version: '3.8'
 
 services:
-  # ==========================================
-  # MS-MASCOTAS DB & APP
-  # ==========================================
   mysql-mascotas:
     image: mysql:8.0
     container_name: mysql-mascotas
@@ -44,9 +41,6 @@ services:
     networks:
       - sanosysalvos-network
 
-  # ==========================================
-  # MS-GEO DB & APP
-  # ==========================================
   mysql-geo:
     image: mysql:8.0
     container_name: mysql-geo
@@ -86,9 +80,6 @@ services:
     networks:
       - sanosysalvos-network
 
-  # ==========================================
-  # MS-COINCIDENCIAS DB & APP
-  # ==========================================
   mysql-coincidencias:
     image: mysql:8.0
     container_name: mysql-coincidencias
@@ -117,7 +108,7 @@ services:
       - "8083:8083"
     environment:
       - DB_HOST=mysql-coincidencias
-      - DB_PORT=3306 
+      - DB_PORT=3306
       - DB_USER=root
       - DB_PASSWORD=root
       - MS_MASCOTAS_URL=http://ms-mascotas:8081
@@ -133,9 +124,6 @@ services:
     networks:
       - sanosysalvos-network
 
-  # ==========================================
-  # API GATEWAY
-  # ==========================================
   api-gateway:
     build:
       context: ./api-gateway
@@ -149,6 +137,7 @@ services:
       - MS_GEO_URL=http://ms-geo:8082
       - MS_COINCIDENCIAS_URL=http://ms-coincidencias:8083
       - BFF_URL=http://bff-sanosysalvos:8084
+      - AUTH0_ISSUER_URI=${AUTH0_ISSUER_URI}
     depends_on:
       - ms-mascotas
       - ms-geo

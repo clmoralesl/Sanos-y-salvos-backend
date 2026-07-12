@@ -2,34 +2,37 @@ package com.sanosysalvos.coincidencias.business.strategy;
 
 import com.sanosysalvos.coincidencias.integration.dto.MascotaDTO;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class RazaStrategyTest {
+public class RazaStrategyTest {
 
     private final RazaStrategy strategy = new RazaStrategy();
 
     @Test
-    void debeRetornarPuntajeMaximoCuandoRazaEsIgual() {
+    public void testScoreMatchesExactly() {
         MascotaDTO base = MascotaDTO.builder().raza("Labrador").build();
-        MascotaDTO candidato = MascotaDTO.builder().raza("labrador").build();
-
+        MascotaDTO candidato = MascotaDTO.builder().raza("Labrador").build();
         assertEquals(40.0, strategy.calcularPuntaje(base, candidato));
     }
 
     @Test
-    void debeRetornarPuntajeParcialCuandoRazaEsGenerica() {
+    public void testScoreMismatches() {
+        MascotaDTO base = MascotaDTO.builder().raza("Labrador").build();
+        MascotaDTO candidato = MascotaDTO.builder().raza("Poodle").build();
+        assertEquals(0.0, strategy.calcularPuntaje(base, candidato));
+    }
+
+    @Test
+    public void testScoreWithGenericBreed() {
         MascotaDTO base = MascotaDTO.builder().raza("Mestizo").build();
         MascotaDTO candidato = MascotaDTO.builder().raza("Poodle").build();
-
         assertEquals(25.0, strategy.calcularPuntaje(base, candidato));
     }
 
     @Test
-    void debeRetornarCeroCuandoRazaEsDistinta() {
-        MascotaDTO base = MascotaDTO.builder().raza("Labrador").build();
+    public void testScoreWithNullBreed() {
+        MascotaDTO base = MascotaDTO.builder().raza(null).build();
         MascotaDTO candidato = MascotaDTO.builder().raza("Poodle").build();
-
-        assertEquals(0.0, strategy.calcularPuntaje(base, candidato));
+        assertEquals(25.0, strategy.calcularPuntaje(base, candidato));
     }
 }
