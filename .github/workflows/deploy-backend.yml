@@ -37,7 +37,7 @@ jobs:
         ECR_REPOSITORY: sanos-salvos-ms-mascotas
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f ms-mascotas/Dockerfile .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./ms-mascotas
         docker push $ECR_REGISTRY/$ECR_REPOSITORY -a
 
     - name: Construir y subir imagen de MS Geo a ECR
@@ -46,7 +46,7 @@ jobs:
         ECR_REPOSITORY: sanos-salvos-ms-geo
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f ms-geo/Dockerfile .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./ms-geo
         docker push $ECR_REGISTRY/$ECR_REPOSITORY -a
 
     - name: Construir y subir imagen de MS Coincidencias a ECR
@@ -55,7 +55,7 @@ jobs:
         ECR_REPOSITORY: sanos-salvos-ms-coincidencias
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f ms-coincidencias/Dockerfile .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./ms-coincidencias
         docker push $ECR_REGISTRY/$ECR_REPOSITORY -a
 
     - name: Construir y subir imagen de API Gateway a ECR
@@ -64,7 +64,7 @@ jobs:
         ECR_REPOSITORY: sanos-salvos-api-gateway
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f api-gateway/Dockerfile .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./api-gateway
         docker push $ECR_REGISTRY/$ECR_REPOSITORY -a
 
     - name: Construir y subir imagen de BFF a ECR
@@ -73,7 +73,7 @@ jobs:
         ECR_REPOSITORY: sanos-salvos-bff
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f bff-sanosysalvos/Dockerfile .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest ./bff-sanosysalvos
         docker push $ECR_REGISTRY/$ECR_REPOSITORY -a
 
     - name: Actualizar configuracion de kubeconfig
