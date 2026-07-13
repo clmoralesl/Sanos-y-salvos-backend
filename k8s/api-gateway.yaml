@@ -22,6 +22,8 @@ spec:
           value: http://ms-geo:8082
         - name: MS_COINCIDENCIAS_URL
           value: http://ms-coincidencias:8083
+        - name: MS_NOTIFICACIONES_URL
+          value: http://ms-notificaciones:8085
         - name: BFF_URL
           value: http://bff-sanosysalvos:8084
         - name: AUTH0_ISSUER_URI
