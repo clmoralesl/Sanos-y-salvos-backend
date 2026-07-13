@@ -29,6 +29,11 @@ spring:
           uri: ${MS_COINCIDENCIAS_URL:http://localhost:8083}
           predicates:
             - Path=/coincidencias/**
+            
+        - id: ms-notificaciones
+          uri: ${MS_NOTIFICACIONES_URL:http://localhost:8085}
+          predicates:
+            - Path=/notificaciones/**
 
         # BFF (Backend For Frontend)
         - id: bff-sanosysalvos

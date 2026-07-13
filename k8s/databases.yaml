@@ -107,3 +107,40 @@ spec:
   ports:
   - port: 3306
     targetPort: 3306
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-notificaciones
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-notificaciones
+  template:
+    metadata:
+      labels:
+        app: mysql-notificaciones
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+        - name: MYSQL_DATABASE
+          value: sanos_salvos_notificaciones_db
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-notificaciones
+spec:
+  selector:
+    app: mysql-notificaciones
+  ports:
+  - port: 3306
+    targetPort: 3306

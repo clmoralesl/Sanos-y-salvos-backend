@@ -18,6 +18,7 @@
         <module>ms-geo</module>
         <module>ms-coincidencias</module>
         <module>bff-sanosysalvos</module>
+        <module>ms-notificaciones</module>
     </modules>
 
     <properties>

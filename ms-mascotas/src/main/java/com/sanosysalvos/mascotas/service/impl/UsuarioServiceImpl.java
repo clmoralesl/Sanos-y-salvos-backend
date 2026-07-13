@@ -9,10 +9,12 @@ import com.sanosysalvos.mascotas.exception.ResourceNotFoundException;
 import com.sanosysalvos.mascotas.repository.OrganizacionRepository;
 import com.sanosysalvos.mascotas.repository.TipoCuentaRepository;
 import com.sanosysalvos.mascotas.repository.UsuarioRepository;
+import com.sanosysalvos.mascotas.service.RabbitMQProducer;
 import com.sanosysalvos.mascotas.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final TipoCuentaRepository tipoCuentaRepository;
     private final OrganizacionRepository organizacionRepository;
+    private final RabbitMQProducer rabbitMQProducer;
 
     @Override
     @Transactional
@@ -84,6 +87,23 @@ public class UsuarioServiceImpl implements UsuarioService {
             
             if (usuario.getOrganizacion() == null || !usuario.getOrganizacion().getIdOrganizacion().equals(organizacion.getIdOrganizacion())) {
                 usuario.setEstadoMembresia("PENDIENTE");
+                
+                // Find ADMIN_ORG of this organization to notify them
+                Optional<Usuario> admin = usuarioRepository.findAll().stream()
+                        .filter(u -> u.getOrganizacion() != null 
+                                && u.getOrganizacion().getIdOrganizacion().equals(organizacion.getIdOrganizacion()) 
+                                && u.getTipoCuenta() != null 
+                                && u.getTipoCuenta().getIdTipoCuenta() == 2L)
+                        .findFirst();
+                        
+                if (admin.isPresent()) {
+                    rabbitMQProducer.enviarNotificacion(
+                            admin.get().getIdUsuario(),
+                            "Nueva Solicitud de Voluntario",
+                            "El usuario " + request.getNombre() + " ha solicitado unirse a tu organización.",
+                            "ALERTA"
+                    );
+                }
             }
         } else {
             usuario.setEstadoMembresia("NINGUNO");
@@ -173,6 +193,14 @@ public class UsuarioServiceImpl implements UsuarioService {
         
         usuario.setEstadoMembresia(estado);
         Usuario guardado = usuarioRepository.save(usuario);
+        
+        String titulo = estado.equals("APROBADO") ? "Membresía Aprobada" : "Membresía Rechazada";
+        String mensaje = estado.equals("APROBADO") 
+                ? "¡Felicidades! Tu solicitud para unirte a la organización ha sido aprobada." 
+                : "Lo sentimos, tu solicitud para unirte a la organización ha sido rechazada o revocada.";
+                
+        rabbitMQProducer.enviarNotificacion(usuario.getIdUsuario(), titulo, mensaje, "SISTEMA");
+        
         return mapToDTO(guardado);
     }
     
