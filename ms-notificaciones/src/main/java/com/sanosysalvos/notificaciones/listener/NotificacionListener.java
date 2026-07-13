@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 public class NotificacionListener {
 
     private final NotificacionService notificacionService;
+    private final com.sanosysalvos.notificaciones.integration.MascotasClient mascotasClient;
+    private final com.sanosysalvos.notificaciones.service.EmailService emailService;
 
     @RabbitListener(queues = "${notificaciones.queue.name}")
     public void recibirNotificacion(NotificacionEventDTO evento) {
@@ -26,6 +28,19 @@ public class NotificacionListener {
                     evento.getUrlRedireccion()
             );
             log.info("Notificación persistida exitosamente para el usuario {}", evento.getIdUsuarioDestino());
+
+            // Si es una notificación de coincidencia, enviar correo
+            if (evento.getTitulo() != null && evento.getTitulo().toLowerCase().contains("coincidencia")) {
+                try {
+                    com.sanosysalvos.notificaciones.dto.UsuarioDTO usuario = mascotasClient.obtenerUsuarioPorId(evento.getIdUsuarioDestino());
+                    if (usuario != null && usuario.getEmail() != null) {
+                        emailService.enviarCorreo(usuario.getEmail(), evento.getTitulo(), evento.getMensaje());
+                    }
+                } catch (Exception e) {
+                    log.error("Error al obtener email del usuario {} para notificación: {}", evento.getIdUsuarioDestino(), e.getMessage());
+                }
+            }
+
         } catch (Exception e) {
             log.error("Error al procesar la notificación: {}", e.getMessage());
         }

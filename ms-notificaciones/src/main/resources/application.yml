@@ -16,6 +16,17 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
@@ -29,3 +40,8 @@ notificaciones:
     name: notificaciones_queue
   routing:
     key: notificaciones_routing_key
+
+app:
+  feign:
+    ms-mascotas:
+      url: ${MS_MASCOTAS_URL:http://localhost:8081}
