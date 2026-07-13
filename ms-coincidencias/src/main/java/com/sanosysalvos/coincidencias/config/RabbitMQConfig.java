@@ -1,6 +1,6 @@
 package com.sanosysalvos.coincidencias.config;
 
-import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -15,8 +15,8 @@ public class RabbitMQConfig {
     private String exchangeName;
 
     @Bean
-    public TopicExchange notificacionesExchange() {
-        return new TopicExchange(exchangeName);
+    public DirectExchange notificacionesExchange() {
+        return new DirectExchange(exchangeName);
     }
 
     @Bean
