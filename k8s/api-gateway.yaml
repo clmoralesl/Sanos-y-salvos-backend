@@ -25,7 +25,7 @@ spec:
         - name: BFF_URL
           value: http://bff-sanosysalvos:8084
         - name: AUTH0_ISSUER_URI
-          value: "https://dev-auth0.com/" # Requiere ajuste con secrets reales en k8s
+          value: "https://dev-7gjg4drf585ieieb.us.auth0.com/"
         resources:
           requests:
             cpu: "100m"
