@@ -1,4 +1,4 @@
-﻿server:
+server:
   port: 8081
 
 spring:
@@ -10,6 +10,7 @@ spring:
     password: ${MYSQL_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: create
     show-sql: true
