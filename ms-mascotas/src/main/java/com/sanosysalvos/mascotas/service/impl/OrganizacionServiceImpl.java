@@ -39,7 +39,7 @@ public class OrganizacionServiceImpl implements OrganizacionService {
                         "Nueva Solicitud de Organización",
                         "La organización '" + guardada.getNombreOrganizacion() + "' ha solicitado ser registrada en el sistema.",
                         "ALERTA",
-                        "/admin/solicitud-org"
+                        "/admin/solicitudes-org"
                 ));
 
         return mapToDTO(guardada);
