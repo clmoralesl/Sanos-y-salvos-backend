@@ -17,28 +17,26 @@ import java.util.Map;
 @Slf4j
 public class OrchestrationService {
 
-    private final MascotasClient mascotasClient;
-    private final GeoClient geoClient;
-    private final CoincidenciasClient coincidenciasClient;
+    private final BffIntegrationService integrationService;
 
     public ReporteDetalleDTO obtenerDetalleCompleto(Long idReporte, String auth0Id) {
         try {
-            Map<String, Object> reporte = mascotasClient.obtenerReporte(idReporte, auth0Id);
+            Map<String, Object> reporte = integrationService.obtenerReporte(idReporte, auth0Id);
             
             Long idMascota = parseLong(reporte.get("idMascota"));
             Long idUbicacion = parseLong(reporte.get("idUbicacionReporte"));
             Long idUsuario = parseLong(reporte.get("idUsuario"));
 
-            Map<String, Object> mascota = mascotasClient.obtenerMascota(idMascota);
-            Map<String, Object> ubicacion = geoClient.obtenerUbicacion(idUbicacion);
-            Map<String, Object> usuario = mascotasClient.obtenerUsuario(idUsuario);
+            Map<String, Object> mascota = integrationService.obtenerMascota(idMascota);
+            Map<String, Object> ubicacion = integrationService.obtenerUbicacion(idUbicacion);
+            Map<String, Object> usuario = integrationService.obtenerUsuario(idUsuario);
 
             List<Map<String, Object>> coincidenciasRaw = new ArrayList<>();
             try {
                 if ("Mascota Perdida".equalsIgnoreCase(String.valueOf(reporte.get("tipoReporte")))) {
-                    coincidenciasRaw = coincidenciasClient.obtenerPorPerdida(idReporte);
+                    coincidenciasRaw = integrationService.obtenerCoincidenciasPorPerdida(idReporte);
                 } else {
-                    coincidenciasRaw = coincidenciasClient.obtenerPorHallazgo(idReporte);
+                    coincidenciasRaw = integrationService.obtenerCoincidenciasPorHallazgo(idReporte);
                 }
             } catch (Exception e) {
                 log.error("Error al obtener coincidencias: {}", e.getMessage());
@@ -52,15 +50,15 @@ public class OrchestrationService {
                         Long matchHallazgoId = parseLong(c.get("reporteHallazgoId"));
                         Long idMatchedReport = idReporte.equals(matchPerdidaId) ? matchHallazgoId : matchPerdidaId;
 
-                        Map<String, Object> matchedReport = mascotasClient.obtenerReporte(idMatchedReport, auth0Id);
+                        Map<String, Object> matchedReport = integrationService.obtenerReporte(idMatchedReport, auth0Id);
                         if (matchedReport == null || !"Activo".equalsIgnoreCase(String.valueOf(matchedReport.get("estadoReporte")))) {
                             continue;
                         }
                         Long matchMascotaId = parseLong(matchedReport.get("idMascota"));
                         Long matchUbicacionId = parseLong(matchedReport.get("idUbicacionReporte"));
 
-                        Map<String, Object> matchMascota = mascotasClient.obtenerMascota(matchMascotaId);
-                        Map<String, Object> matchUbicacion = geoClient.obtenerUbicacion(matchUbicacionId);
+                        Map<String, Object> matchMascota = integrationService.obtenerMascota(matchMascotaId);
+                        Map<String, Object> matchUbicacion = integrationService.obtenerUbicacion(matchUbicacionId);
 
                         coincidencias.add(ReporteDetalleDTO.CoincidenciaReporteDetalle.builder()
                                 .idReporte(idMatchedReport)

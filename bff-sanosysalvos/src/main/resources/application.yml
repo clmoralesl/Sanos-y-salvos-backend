@@ -17,3 +17,31 @@ logging:
   level:
     com.sanosysalvos.bff: DEBUG
     org.springframework.web: INFO
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      bffMascotasCB:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: 3
+        waitDurationInOpenState: 5000ms
+        failureRateThreshold: 50
+      bffGeoCB:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: 3
+        waitDurationInOpenState: 5000ms
+        failureRateThreshold: 50
+      bffCoincidenciasCB:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: 3
+        waitDurationInOpenState: 5000ms
+        failureRateThreshold: 50

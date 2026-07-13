@@ -5,9 +5,9 @@ import com.sanosysalvos.mascotas.dto.ReporteRequestDTO;
 import com.sanosysalvos.mascotas.dto.ReporteResponseDTO;
 import com.sanosysalvos.mascotas.entity.*;
 import com.sanosysalvos.mascotas.repository.*;
+import com.sanosysalvos.mascotas.service.ReporteFactory;
 import com.sanosysalvos.mascotas.service.ReporteService;
-import com.sanosysalvos.mascotas.client.CoincidenciaClient;
-import com.sanosysalvos.mascotas.client.UbicacionClient;
+import com.sanosysalvos.mascotas.service.MascotasIntegrationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,8 +28,8 @@ public class ReporteServiceImpl implements ReporteService {
     private final EstadoReporteRepository estadoReporteRepository;
     private final UsuarioRepository usuarioRepository;
     private final MascotaRepository mascotaRepository;
-    private final CoincidenciaClient coincidenciaClient;
-    private final UbicacionClient ubicacionClient;
+    private final MascotasIntegrationService integrationService;
+    private final ReporteFactory reporteFactory;
 
     @Override
     @Transactional
@@ -40,12 +40,9 @@ public class ReporteServiceImpl implements ReporteService {
         Mascota mascota = mascotaRepository.findById(request.getIdMascota())
                 .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
 
-        TipoReporte tipoReporte = tipoReporteRepository.findById(request.getIdTipoReporte())
-                .orElseThrow(() -> new RuntimeException("Tipo de reporte no encontrado"));
-
         try {
-            var respuesta = ubicacionClient.obtenerUbicacion(request.getIdUbicacionReporte());
-            if (!respuesta.getStatusCode().is2xxSuccessful()) {
+            var respuesta = integrationService.obtenerUbicacion(request.getIdUbicacionReporte());
+            if (respuesta != null && !respuesta.getStatusCode().is2xxSuccessful()) {
                 throw new RuntimeException("La ubicación especificada no existe en el sistema de geolocalización");
             }
         } catch (Exception e) {
@@ -53,19 +50,7 @@ public class ReporteServiceImpl implements ReporteService {
             throw new RuntimeException("Rechazado: No se pudo validar la ubicación.");
         }
 
-        EstadoReporte estadoActivo = estadoReporteRepository.findByDescripcion("Activo");
-        if (estadoActivo == null) {
-            estadoActivo = estadoReporteRepository.findById(1L).orElseThrow(() -> new RuntimeException("Estado Activo no encontrado"));
-        }
-
-        Reporte reporte = Reporte.builder()
-                .fechaIncidente(request.getFechaIncidente())
-                .idUbicacionReporte(request.getIdUbicacionReporte())
-                .tipoReporte(tipoReporte)
-                .estadoReporte(estadoActivo)
-                .usuario(usuario)
-                .mascota(mascota)
-                .build();
+        Reporte reporte = reporteFactory.crearReporte(request, usuario, mascota);
 
         reporte = reporteRepository.save(reporte);
 
@@ -75,7 +60,7 @@ public class ReporteServiceImpl implements ReporteService {
                 @Override
                 public void afterCommit() {
                     try {
-                        coincidenciaClient.procesarReporteTrigger(reporteId);
+                        integrationService.procesarReporteTrigger(reporteId);
                     } catch (Exception e) {
                         log.error("El ms-coincidencias fallo: {}", e.getMessage());
                     }
@@ -83,7 +68,7 @@ public class ReporteServiceImpl implements ReporteService {
             });
         } else {
             try {
-                coincidenciaClient.procesarReporteTrigger(reporteId);
+                integrationService.procesarReporteTrigger(reporteId);
             } catch (Exception e) {
                 log.error("El ms-coincidencias fallo: {}", e.getMessage());
             }
@@ -156,7 +141,7 @@ public class ReporteServiceImpl implements ReporteService {
                 @Override
                 public void afterCommit() {
                     try {
-                        coincidenciaClient.procesarReporteTrigger(reporteId);
+                        integrationService.procesarReporteTrigger(reporteId);
                     } catch (Exception e) {
                         log.error("El ms-coincidencias fallo: {}", e.getMessage());
                     }
@@ -164,7 +149,7 @@ public class ReporteServiceImpl implements ReporteService {
             });
         } else {
             try {
-                coincidenciaClient.procesarReporteTrigger(reporteId);
+                integrationService.procesarReporteTrigger(reporteId);
             } catch (Exception e) {
                 log.error("El ms-coincidencias fallo: {}", e.getMessage());
             }
@@ -203,19 +188,6 @@ public class ReporteServiceImpl implements ReporteService {
     }
 
     private ReporteResponseDTO mapearAResponse(Reporte reporte) {
-        return ReporteResponseDTO.builder()
-                .idReporte(reporte.getIdReporte())
-                .fechaRegistro(reporte.getFechaRegistro())
-                .fechaIncidente(reporte.getFechaIncidente())
-                .idUbicacionReporte(reporte.getIdUbicacionReporte())
-                .tipoReporte(reporte.getTipoReporte() != null ? reporte.getTipoReporte().getDescripcion() : null)
-                .estadoReporte(reporte.getEstadoReporte() != null ? reporte.getEstadoReporte().getDescripcion() : null)
-                .idUsuario(reporte.getUsuario() != null ? reporte.getUsuario().getIdUsuario() : null)
-                .nombreUsuario(reporte.getUsuario() != null ? reporte.getUsuario().getNombre() : null)
-                .idMascota(reporte.getMascota() != null ? reporte.getMascota().getIdMascota() : null)
-                .nombreMascota(reporte.getMascota() != null ? reporte.getMascota().getNombreMascota() : null)
-                .especieMascota(reporte.getMascota() != null && reporte.getMascota().getRaza() != null && reporte.getMascota().getRaza().getEspecie() != null 
-                        ? reporte.getMascota().getRaza().getEspecie().getNombreEspecie() : null)
-                .build();
+        return reporteFactory.mapearAResponse(reporte);
     }
 }

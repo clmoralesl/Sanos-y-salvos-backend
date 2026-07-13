@@ -30,3 +30,23 @@ clients:
     url: ${MS_COINCIDENCIAS_URL:http://localhost:8083}
   ms-geo:
     url: ${MS_GEO_URL:http://localhost:8082}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      geoCB:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: 3
+        waitDurationInOpenState: 5000ms
+        failureRateThreshold: 50
+      coincidenciaCB:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: 3
+        waitDurationInOpenState: 5000ms
+        failureRateThreshold: 50
