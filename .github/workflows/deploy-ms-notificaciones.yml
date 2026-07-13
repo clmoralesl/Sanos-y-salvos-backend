@@ -47,8 +47,12 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
+        MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+        MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
       run: |
         cd k8s
         sed -i "s|ECR_REGISTRY_PLACEHOLDER|$ECR_REGISTRY|g" ms-notificaciones.yaml
         sed -i "s|IMAGE_TAG_PLACEHOLDER|$IMAGE_TAG|g" ms-notificaciones.yaml
+        sed -i "s|MAIL_USERNAME_PLACEHOLDER|$MAIL_USERNAME|g" ms-notificaciones.yaml
+        sed -i "s|MAIL_PASSWORD_PLACEHOLDER|$MAIL_PASSWORD|g" ms-notificaciones.yaml
         kubectl apply -f ms-notificaciones.yaml

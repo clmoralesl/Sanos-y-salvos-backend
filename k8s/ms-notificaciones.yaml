@@ -33,6 +33,10 @@ spec:
           value: "user"
         - name: RABBITMQ_PASSWORD
           value: "password"
+        - name: MAIL_USERNAME
+          value: "MAIL_USERNAME_PLACEHOLDER"
+        - name: MAIL_PASSWORD
+          value: "MAIL_PASSWORD_PLACEHOLDER"
         ports:
         - containerPort: 8085
 ---
