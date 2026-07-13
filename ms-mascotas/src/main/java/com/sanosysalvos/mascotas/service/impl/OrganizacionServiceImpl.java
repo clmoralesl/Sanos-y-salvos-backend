@@ -23,6 +23,7 @@ public class OrganizacionServiceImpl implements OrganizacionService {
                 .nombreOrganizacion(request.getNombreOrganizacion())
                 .direccion(request.getDireccion())
                 .telefono(request.getTelefono())
+                .email(request.getEmail())
                 .rut(request.getRut())
                 .rutRepresentante(request.getRutRepresentante())
                 .estado("PENDIENTE") // Default to PENDIENTE
@@ -54,6 +55,7 @@ public class OrganizacionServiceImpl implements OrganizacionService {
         organizacion.setNombreOrganizacion(request.getNombreOrganizacion());
         organizacion.setDireccion(request.getDireccion());
         organizacion.setTelefono(request.getTelefono());
+        organizacion.setEmail(request.getEmail());
         organizacion.setRut(request.getRut());
         organizacion.setRutRepresentante(request.getRutRepresentante());
 
@@ -94,6 +96,7 @@ public class OrganizacionServiceImpl implements OrganizacionService {
                 .nombreOrganizacion(organizacion.getNombreOrganizacion())
                 .direccion(organizacion.getDireccion())
                 .telefono(organizacion.getTelefono())
+                .email(organizacion.getEmail())
                 .rut(organizacion.getRut())
                 .rutRepresentante(organizacion.getRutRepresentante())
                 .estado(organizacion.getEstado())

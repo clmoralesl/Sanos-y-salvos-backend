@@ -25,6 +25,9 @@ public class Organizacion {
     @Column(name = "telefono")
     private String telefono;
 
+    @Column(name = "email")
+    private String email;
+
     @Column(name = "rut", unique = true)
     private String rut;
 
