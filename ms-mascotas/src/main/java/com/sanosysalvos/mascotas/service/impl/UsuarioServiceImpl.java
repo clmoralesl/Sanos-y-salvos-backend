@@ -89,9 +89,10 @@ public class UsuarioServiceImpl implements UsuarioService {
                 usuario.setEstadoMembresia("PENDIENTE");
                 
                 // Find ADMIN_ORG of this organization to notify them
+                final Long targetOrgId = organizacion.getIdOrganizacion();
                 Optional<Usuario> admin = usuarioRepository.findAll().stream()
                         .filter(u -> u.getOrganizacion() != null 
-                                && u.getOrganizacion().getIdOrganizacion().equals(organizacion.getIdOrganizacion()) 
+                                && u.getOrganizacion().getIdOrganizacion().equals(targetOrgId) 
                                 && u.getTipoCuenta() != null 
                                 && u.getTipoCuenta().getIdTipoCuenta() == 2L)
                         .findFirst();
