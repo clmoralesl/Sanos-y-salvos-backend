@@ -81,6 +81,12 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (request.getIdOrganizacion() != null) {
             organizacion = organizacionRepository.findById(request.getIdOrganizacion())
                     .orElseThrow(() -> new ResourceNotFoundException("Organización no encontrada con ID: " + request.getIdOrganizacion()));
+            
+            if (usuario.getOrganizacion() == null || !usuario.getOrganizacion().getIdOrganizacion().equals(organizacion.getIdOrganizacion())) {
+                usuario.setEstadoMembresia("PENDIENTE");
+            }
+        } else {
+            usuario.setEstadoMembresia("NINGUNO");
         }
 
         usuario.setNombre(request.getNombre());
@@ -132,6 +138,12 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (request.getIdOrganizacion() != null) {
             organizacion = organizacionRepository.findById(request.getIdOrganizacion())
                     .orElseThrow(() -> new ResourceNotFoundException("Organización no encontrada con ID: " + request.getIdOrganizacion()));
+            
+            if (usuario.getOrganizacion() == null || !usuario.getOrganizacion().getIdOrganizacion().equals(organizacion.getIdOrganizacion())) {
+                usuario.setEstadoMembresia("PENDIENTE");
+            }
+        } else {
+            usuario.setEstadoMembresia("NINGUNO");
         }
 
         usuario.setAuth0Id(request.getAuth0Id());
