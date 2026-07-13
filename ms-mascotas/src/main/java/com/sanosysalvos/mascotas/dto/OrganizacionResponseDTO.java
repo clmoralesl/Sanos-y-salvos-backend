@@ -17,6 +17,9 @@ public class OrganizacionResponseDTO {
     private String email;
     private String rut;
     private String rutRepresentante;
+    private String nombreRepresentante;
+    private String emailRepresentante;
+    private String telefonoRepresentante;
     private String estado;
 }
 

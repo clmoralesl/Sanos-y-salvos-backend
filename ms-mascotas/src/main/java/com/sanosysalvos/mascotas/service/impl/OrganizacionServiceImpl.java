@@ -91,6 +91,22 @@ public class OrganizacionServiceImpl implements OrganizacionService {
     }
 
     private OrganizacionResponseDTO mapToDTO(Organizacion organizacion) {
+        String repNombre = null;
+        String repEmail = null;
+        String repTelefono = null;
+
+        if (organizacion.getIdOrganizacion() != null) {
+            java.util.List<com.sanosysalvos.mascotas.entity.Usuario> usuarios = usuarioRepository.findByOrganizacionIdOrganizacion(organizacion.getIdOrganizacion());
+            for (com.sanosysalvos.mascotas.entity.Usuario u : usuarios) {
+                if (u.getTipoCuenta() != null && "ADMIN_ORG".equals(u.getTipoCuenta().getDescripcion())) {
+                    repNombre = u.getNombre();
+                    repEmail = u.getEmail();
+                    repTelefono = u.getTelefono();
+                    break;
+                }
+            }
+        }
+
         return OrganizacionResponseDTO.builder()
                 .idOrganizacion(organizacion.getIdOrganizacion())
                 .nombreOrganizacion(organizacion.getNombreOrganizacion())
@@ -99,6 +115,9 @@ public class OrganizacionServiceImpl implements OrganizacionService {
                 .email(organizacion.getEmail())
                 .rut(organizacion.getRut())
                 .rutRepresentante(organizacion.getRutRepresentante())
+                .nombreRepresentante(repNombre)
+                .emailRepresentante(repEmail)
+                .telefonoRepresentante(repTelefono)
                 .estado(organizacion.getEstado())
                 .build();
     }
