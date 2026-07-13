@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/notificaciones")
+@RequestMapping("/notificaciones/v1/notificaciones")
 @RequiredArgsConstructor
 public class NotificacionController {
 
