@@ -12,37 +12,29 @@ spring:
   cloud:
     gateway:
       routes:
-        # Microservicio de Mascotas (Quitamos el RewritePath para eliminar errores de sintaxis)
+        # Microservicio de Mascotas
         - id: ms-mascotas
           uri: ${MS_MASCOTAS_URL:http://localhost:8081}
           predicates:
-            - Path=/api/mascotas/**
-          filters:
-            - StripPrefix=1 # Esto quita /api y deja /mascotas/v1/... que es lo que el micro espera
+            - Path=/mascotas/**
             
         # Microservicio de Geolocalización
         - id: ms-geo
           uri: ${MS_GEO_URL:http://localhost:8082}
           predicates:
-            - Path=/api/geo/**
-          filters:
-            - StripPrefix=1
+            - Path=/geo/**
                 
         # Microservicio de Coincidencias
         - id: ms-coincidencias
           uri: ${MS_COINCIDENCIAS_URL:http://localhost:8083}
           predicates:
-            - Path=/api/coincidencias/**
-          filters:
-            - StripPrefix=1
+            - Path=/coincidencias/**
 
         # BFF (Backend For Frontend)
         - id: bff-sanosysalvos
           uri: ${BFF_URL:http://localhost:8084}
           predicates:
-            - Path=/api/bff/**
-          filters:
-            - StripPrefix=1
+            - Path=/bff/**
 
 # Configuración de Logging
 logging:
