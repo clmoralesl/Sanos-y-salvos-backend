@@ -172,6 +172,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .email(usuario.getEmail())
                 .telefono(usuario.getTelefono())
                 .nombreOrganizacion(usuario.getOrganizacion() != null ? usuario.getOrganizacion().getNombreOrganizacion() : null)
+                .estadoOrganizacion(usuario.getOrganizacion() != null ? usuario.getOrganizacion().getEstado() : null)
                 .descripcionTipoCuenta(usuario.getTipoCuenta() != null ? usuario.getTipoCuenta().getDescripcion() : null)
                 .estadoMembresia(usuario.getEstadoMembresia())
                 .build();
