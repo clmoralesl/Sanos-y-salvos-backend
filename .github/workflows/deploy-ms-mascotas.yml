@@ -1,0 +1,54 @@
+name: Desplegar MS Mascotas a AWS EKS
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'ms-mascotas/**'
+      - 'k8s/ms-mascotas.yaml'
+      - 'pom.xml'
+
+env:
+  AWS_REGION: "us-east-1"
+  EKS_CLUSTER_NAME: "sanos-salvos-cluster"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Descargar codigo
+      uses: actions/checkout@v4
+
+    - name: Configurar credenciales de AWS
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Iniciar sesion en Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Construir y subir imagen a ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/sanos-salvos-ms-mascotas:$IMAGE_TAG -t $ECR_REGISTRY/sanos-salvos-ms-mascotas:latest ./ms-mascotas
+        docker push $ECR_REGISTRY/sanos-salvos-ms-mascotas -a
+
+    - name: Actualizar configuracion de kubeconfig
+      run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+
+    - name: Desplegar en EKS
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        cd k8s
+        sed -i "s|ECR_REGISTRY_PLACEHOLDER|$ECR_REGISTRY|g" ms-mascotas.yaml
+        sed -i "s|IMAGE_TAG_PLACEHOLDER|$IMAGE_TAG|g" ms-mascotas.yaml
+        kubectl apply -f ms-mascotas.yaml
