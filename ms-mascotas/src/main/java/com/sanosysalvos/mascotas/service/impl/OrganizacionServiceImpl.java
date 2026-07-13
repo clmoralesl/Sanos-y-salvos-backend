@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 public class OrganizacionServiceImpl implements OrganizacionService {
     private final OrganizacionRepository organizacionRepository;
     private final com.sanosysalvos.mascotas.repository.UsuarioRepository usuarioRepository;
+    private final com.sanosysalvos.mascotas.service.RabbitMQProducer rabbitMQProducer;
 
     @Override
     public OrganizacionResponseDTO crearOrganizacion(OrganizacionRequestDTO request) {
@@ -30,6 +31,17 @@ public class OrganizacionServiceImpl implements OrganizacionService {
                 .build();
 
         Organizacion guardada = organizacionRepository.save(organizacion);
+
+        usuarioRepository.findAll().stream()
+                .filter(u -> u.getTipoCuenta() != null && u.getTipoCuenta().getIdTipoCuenta() == 3L)
+                .forEach(superAdmin -> rabbitMQProducer.enviarNotificacion(
+                        superAdmin.getIdUsuario(),
+                        "Nueva Solicitud de Organización",
+                        "La organización '" + guardada.getNombreOrganizacion() + "' ha solicitado ser registrada en el sistema.",
+                        "ALERTA",
+                        "/admin/organizaciones"
+                ));
+
         return mapToDTO(guardada);
     }
 
