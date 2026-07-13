@@ -87,9 +87,9 @@ INSERT INTO caracteristica (id_caracteristica, descripcion) VALUES (18, 'Cariño
 INSERT INTO caracteristica (id_caracteristica, descripcion) VALUES (19, 'Muy activo');
 INSERT INTO caracteristica (id_caracteristica, descripcion) VALUES (20, 'Lleva ropa / capa');
 
-INSERT INTO tipo_cuenta (id_tipo_cuenta, descripcion) VALUES (1, 'Usuario Estándar');
-INSERT INTO tipo_cuenta (id_tipo_cuenta, descripcion) VALUES (2, 'Organización / Refugio');
-INSERT INTO tipo_cuenta (id_tipo_cuenta, descripcion) VALUES (3, 'Administrador');
+INSERT INTO tipo_cuenta (id_tipo_cuenta, descripcion) VALUES (1, 'USUARIO_ESTANDAR');
+INSERT INTO tipo_cuenta (id_tipo_cuenta, descripcion) VALUES (2, 'ADMIN_ORG');
+INSERT INTO tipo_cuenta (id_tipo_cuenta, descripcion) VALUES (3, 'SUPER_ADMIN');
 
 -- 6. Tipos de Reporte
 INSERT INTO tipo_reporte (id_tipo_reporte, descripcion) VALUES (1, 'Mascota Perdida');
@@ -99,9 +99,9 @@ INSERT INTO tipo_reporte (id_tipo_reporte, descripcion) VALUES (2, 'Mascota Enco
 INSERT INTO estado_reporte (id_estado_reporte, descripcion) VALUES (1, 'Activo');
 INSERT INTO estado_reporte (id_estado_reporte, descripcion) VALUES (2, 'Cerrado/Resuelto');
 
-INSERT INTO organizacion (id_organizacion, nombre_organizacion, direccion, telefono) VALUES (1, 'Refugio Patitas Felices', 'Av. Providencia 1234, Santiago', '+56912345678');
-INSERT INTO usuario (id_usuario, auth0_id, nombre, email, telefono, id_organizacion, id_tipo_cuenta) VALUES (1, 'auth0|local_dummy_001', 'Juan Pérez', 'juan@sanosysalvos.cl', '+56988887777', NULL, 1);
-INSERT INTO usuario (id_usuario, auth0_id, nombre, email, telefono, id_organizacion, id_tipo_cuenta) VALUES (2, 'auth0|local_dummy_002', 'Valeska Guardia', 'valeska@sanosysalvos.cl', '+56999999999', NULL, 1);
-INSERT INTO usuario (id_usuario, auth0_id, nombre, email, telefono, id_organizacion, id_tipo_cuenta) VALUES (3, 'auth0|local_dummy_003', 'Claudio Morales', 'claudio@sanosysalvos.cl', '+56977777777', NULL, 1);
-INSERT INTO usuario (id_usuario, auth0_id, nombre, email, telefono, id_organizacion, id_tipo_cuenta) VALUES (4, 'google-oauth2|106589703694374122699', 'Claudio Morales Linares', 'claudiomoraleseiv@gmail.com', '', NULL, 3);
+INSERT INTO organizacion (id_organizacion, nombre_organizacion, direccion, telefono, rut, rut_representante, estado) VALUES (1, 'Refugio Patitas Felices', 'Av. Providencia 1234, Santiago', '+56912345678', '65.123.456-7', '12.345.678-9', 'ACTIVA');
+INSERT INTO usuario (id_usuario, auth0_id, nombre, email, telefono, id_organizacion, id_tipo_cuenta, estado_membresia) VALUES (1, 'auth0|local_dummy_001', 'Juan Pérez', 'juan@sanosysalvos.cl', '+56988887777', NULL, 1, 'NINGUNO');
+INSERT INTO usuario (id_usuario, auth0_id, nombre, email, telefono, id_organizacion, id_tipo_cuenta, estado_membresia) VALUES (2, 'auth0|local_dummy_002', 'Valeska Guardia', 'valeska@sanosysalvos.cl', '+56999999999', 1, 2, 'APROBADO');
+INSERT INTO usuario (id_usuario, auth0_id, nombre, email, telefono, id_organizacion, id_tipo_cuenta, estado_membresia) VALUES (3, 'auth0|local_dummy_003', 'Claudio Morales', 'claudio@sanosysalvos.cl', '+56977777777', NULL, 1, 'NINGUNO');
+INSERT INTO usuario (id_usuario, auth0_id, nombre, email, telefono, id_organizacion, id_tipo_cuenta, estado_membresia) VALUES (4, 'google-oauth2|106589703694374122699', 'Claudio Morales Linares', 'claudiomoraleseiv@gmail.com', '', NULL, 3, 'NINGUNO');
 INSERT INTO mascota (id_mascota, nombre_mascota, descripcion, color_primario, color_secundario, id_raza, id_tamanio, id_usuario, edad_aproximada) VALUES (1, 'Max', 'Labrador chocolate con mancha blanca en el pecho', 'Marrón', 'Blanco', 2, 3, 1, '1-3 años');

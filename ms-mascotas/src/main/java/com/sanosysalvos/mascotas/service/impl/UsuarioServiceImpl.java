@@ -30,15 +30,17 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new RuntimeException("El usuario con Auth0 ID " + request.getAuth0Id() + " ya está registrado.");
         }
 
-        
         Long idTipoCuenta = (request.getIdTipoCuenta() != null) ? request.getIdTipoCuenta() : 1L;
         TipoCuenta tipoCuenta = tipoCuentaRepository.findById(idTipoCuenta)
                 .orElseThrow(() -> new ResourceNotFoundException("Tipo de cuenta no encontrado con ID: " + idTipoCuenta));
 
         Organizacion organizacion = null;
+        String estadoMembresia = "NINGUNO";
+        
         if (request.getIdOrganizacion() != null) {
             organizacion = organizacionRepository.findById(request.getIdOrganizacion())
                     .orElseThrow(() -> new ResourceNotFoundException("Organización no encontrada con ID: " + request.getIdOrganizacion()));
+            estadoMembresia = "PENDIENTE";
         }
 
         Usuario nuevoUsuario = Usuario.builder()
@@ -48,6 +50,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .telefono(request.getTelefono())
                 .tipoCuenta(tipoCuenta)
                 .organizacion(organizacion)
+                .estadoMembresia(estadoMembresia)
                 .build();
 
         Usuario guardado = usuarioRepository.save(nuevoUsuario);
@@ -131,7 +134,6 @@ public class UsuarioServiceImpl implements UsuarioService {
                     .orElseThrow(() -> new ResourceNotFoundException("Organización no encontrada con ID: " + request.getIdOrganizacion()));
         }
 
-        
         usuario.setAuth0Id(request.getAuth0Id());
         usuario.setNombre(request.getNombre());
         usuario.setEmail(request.getEmail());
@@ -151,6 +153,16 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuarioRepository.delete(usuario);
     }
 
+    @Override
+    @Transactional
+    public UsuarioResponseDTO actualizarMembresia(Long idUsuario, String estado) {
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró usuario con el ID: " + idUsuario));
+        
+        usuario.setEstadoMembresia(estado);
+        Usuario guardado = usuarioRepository.save(usuario);
+        return mapToDTO(guardado);
+    }
     
     private UsuarioResponseDTO mapToDTO(Usuario usuario) {
         return UsuarioResponseDTO.builder()
@@ -161,7 +173,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .telefono(usuario.getTelefono())
                 .nombreOrganizacion(usuario.getOrganizacion() != null ? usuario.getOrganizacion().getNombreOrganizacion() : null)
                 .descripcionTipoCuenta(usuario.getTipoCuenta() != null ? usuario.getTipoCuenta().getDescripcion() : null)
+                .estadoMembresia(usuario.getEstadoMembresia())
                 .build();
     }
 }
-

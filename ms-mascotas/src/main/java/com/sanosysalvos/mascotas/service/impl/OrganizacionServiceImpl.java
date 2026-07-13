@@ -23,6 +23,9 @@ public class OrganizacionServiceImpl implements OrganizacionService {
                 .nombreOrganizacion(request.getNombreOrganizacion())
                 .direccion(request.getDireccion())
                 .telefono(request.getTelefono())
+                .rut(request.getRut())
+                .rutRepresentante(request.getRutRepresentante())
+                .estado("PENDIENTE") // Default to PENDIENTE
                 .build();
 
         Organizacion guardada = organizacionRepository.save(organizacion);
@@ -51,6 +54,8 @@ public class OrganizacionServiceImpl implements OrganizacionService {
         organizacion.setNombreOrganizacion(request.getNombreOrganizacion());
         organizacion.setDireccion(request.getDireccion());
         organizacion.setTelefono(request.getTelefono());
+        organizacion.setRut(request.getRut());
+        organizacion.setRutRepresentante(request.getRutRepresentante());
 
         Organizacion actualizada = organizacionRepository.save(organizacion);
         return mapToDTO(actualizada);
@@ -63,13 +68,24 @@ public class OrganizacionServiceImpl implements OrganizacionService {
         organizacionRepository.delete(organizacion);
     }
 
+    @Override
+    public OrganizacionResponseDTO actualizarEstado(Long id, String estado) {
+        Organizacion organizacion = organizacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Organización no encontrada con ID: " + id));
+        organizacion.setEstado(estado);
+        Organizacion actualizada = organizacionRepository.save(organizacion);
+        return mapToDTO(actualizada);
+    }
+
     private OrganizacionResponseDTO mapToDTO(Organizacion organizacion) {
         return OrganizacionResponseDTO.builder()
                 .idOrganizacion(organizacion.getIdOrganizacion())
                 .nombreOrganizacion(organizacion.getNombreOrganizacion())
                 .direccion(organizacion.getDireccion())
                 .telefono(organizacion.getTelefono())
+                .rut(organizacion.getRut())
+                .rutRepresentante(organizacion.getRutRepresentante())
+                .estado(organizacion.getEstado())
                 .build();
     }
 }
-

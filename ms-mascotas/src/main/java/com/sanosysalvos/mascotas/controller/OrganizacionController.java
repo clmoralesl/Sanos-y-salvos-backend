@@ -46,5 +46,10 @@ public class OrganizacionController {
         organizacionService.eliminarOrganizacion(id);
         return ResponseEntity.noContent().build();
     }
-}
 
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<OrganizacionResponseDTO> actualizarEstado(@PathVariable Long id, @RequestParam String estado) {
+        OrganizacionResponseDTO organizacion = organizacionService.actualizarEstado(id, estado);
+        return ResponseEntity.ok(organizacion);
+    }
+}

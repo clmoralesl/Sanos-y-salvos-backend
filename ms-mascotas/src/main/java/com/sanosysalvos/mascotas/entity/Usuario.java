@@ -16,7 +16,6 @@ public class Usuario {
     @Column(name = "id_usuario")
     private Long idUsuario;
 
-    
     @Column(name = "auth0_id", unique = true, length = 100)
     private String auth0Id;
 
@@ -36,5 +35,7 @@ public class Usuario {
     @ManyToOne
     @JoinColumn(name = "id_tipo_cuenta")
     private TipoCuenta tipoCuenta;
-}
 
+    @Column(name = "estado_membresia")
+    private String estadoMembresia;
+}

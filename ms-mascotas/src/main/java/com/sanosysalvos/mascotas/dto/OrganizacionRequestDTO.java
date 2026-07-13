@@ -13,5 +13,6 @@ public class OrganizacionRequestDTO {
     private String nombreOrganizacion;
     private String direccion;
     private String telefono;
+    private String rut;
+    private String rutRepresentante;
 }
-

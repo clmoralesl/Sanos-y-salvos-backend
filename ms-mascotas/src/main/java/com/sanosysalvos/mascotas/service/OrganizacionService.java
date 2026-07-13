@@ -11,5 +11,5 @@ public interface OrganizacionService {
     List<OrganizacionResponseDTO> obtenerTodas();
     OrganizacionResponseDTO actualizarOrganizacion(Long id, OrganizacionRequestDTO request);
     void eliminarOrganizacion(Long id);
+    OrganizacionResponseDTO actualizarEstado(Long id, String estado);
 }
-
