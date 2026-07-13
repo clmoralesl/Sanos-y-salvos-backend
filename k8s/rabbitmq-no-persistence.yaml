@@ -1,0 +1,261 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/instance: rabbitmq
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/version: 4.1.3
+    helm.sh/chart: rabbitmq-16.0.14
+  name: rabbitmq
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: rabbitmq
+      app.kubernetes.io/name: rabbitmq
+  serviceName: rabbitmq-headless
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: rabbitmq
+        app.kubernetes.io/name: rabbitmq
+        app.kubernetes.io/version: 4.1.3
+        helm.sh/chart: rabbitmq-16.0.14
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/instance: rabbitmq
+                  app.kubernetes.io/name: rabbitmq
+              topologyKey: kubernetes.io/hostname
+            weight: 1
+      automountServiceAccountToken: true
+      containers:
+      - env:
+        - name: BITNAMI_DEBUG
+          value: "false"
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: MY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: RABBITMQ_FORCE_BOOT
+          value: "no"
+        - name: RABBITMQ_NODE_NAME
+          value: rabbit@$(MY_POD_NAME).rabbitmq-headless.$(MY_POD_NAMESPACE).svc.cluster.local
+        - name: RABBITMQ_UPDATE_PASSWORD
+          value: "no"
+        - name: RABBITMQ_MNESIA_DIR
+          value: /opt/bitnami/rabbitmq/.rabbitmq/mnesia/$(RABBITMQ_NODE_NAME)
+        - name: RABBITMQ_LDAP_ENABLE
+          value: "no"
+        - name: RABBITMQ_LOGS
+          value: '-'
+        - name: RABBITMQ_ULIMIT_NOFILES
+          value: "65535"
+        - name: RABBITMQ_USE_LONGNAME
+          value: "true"
+        - name: RABBITMQ_ERL_COOKIE_FILE
+          value: /opt/bitnami/rabbitmq/secrets/rabbitmq-erlang-cookie
+        - name: RABBITMQ_LOAD_DEFINITIONS
+          value: "no"
+        - name: RABBITMQ_DEFINITIONS_FILE
+          value: /app/load_definition.json
+        - name: RABBITMQ_SECURE_PASSWORD
+          value: "yes"
+        - name: RABBITMQ_USERNAME
+          value: user
+        - name: RABBITMQ_PASSWORD_FILE
+          value: /opt/bitnami/rabbitmq/secrets/rabbitmq-password
+        - name: RABBITMQ_PLUGINS
+          value: rabbitmq_management, rabbitmq_peer_discovery_k8s, rabbitmq_auth_backend_ldap
+        image: docker.io/bitnamilegacy/rabbitmq:4.1.3-debian-12-r1
+        imagePullPolicy: IfNotPresent
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/bash
+              - -ec
+              - |
+                if [[ -f /opt/bitnami/scripts/rabbitmq/nodeshutdown.sh ]]; then
+                    /opt/bitnami/scripts/rabbitmq/nodeshutdown.sh -t "120" -d "false"
+                else
+                    rabbitmqctl stop_app
+                fi
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -ec
+            - curl -f --user user:$(< $RABBITMQ_PASSWORD_FILE) 127.0.0.1:15672/api/health/checks/virtual-hosts
+          failureThreshold: 6
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 20
+        name: rabbitmq
+        ports:
+        - containerPort: 5672
+          name: amqp
+          protocol: TCP
+        - containerPort: 25672
+          name: dist
+          protocol: TCP
+        - containerPort: 15672
+          name: stats
+          protocol: TCP
+        - containerPort: 4369
+          name: epmd
+          protocol: TCP
+        - containerPort: 9419
+          name: metrics
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -ec
+            - curl -f --user user:$(< $RABBITMQ_PASSWORD_FILE) 127.0.0.1:15672/api/health/checks/local-alarms
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 20
+        resources:
+          limits:
+            cpu: 375m
+            ephemeral-storage: 2Gi
+            memory: 384Mi
+          requests:
+            cpu: 250m
+            ephemeral-storage: 50Mi
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 1001
+          runAsNonRoot: true
+          runAsUser: 1001
+          seLinuxOptions: {}
+          seccompProfile:
+            type: RuntimeDefault
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /bitnami/rabbitmq/conf
+          name: configuration
+        - mountPath: /tmp
+          name: empty-dir
+          subPath: tmp-dir
+        - mountPath: /opt/bitnami/rabbitmq/etc/rabbitmq
+          name: empty-dir
+          subPath: app-conf-dir
+        - mountPath: /opt/bitnami/rabbitmq/var/lib/rabbitmq
+          name: empty-dir
+          subPath: app-tmp-dir
+        - mountPath: /opt/bitnami/rabbitmq/.rabbitmq/
+          name: empty-dir
+          subPath: app-erlang-cookie
+        - mountPath: /opt/bitnami/rabbitmq/var/log/rabbitmq
+          name: empty-dir
+          subPath: app-logs-dir
+        - mountPath: /opt/bitnami/rabbitmq/plugins
+          name: empty-dir
+          subPath: app-plugins-dir
+        - mountPath: /opt/bitnami/rabbitmq/.rabbitmq/mnesia
+          name: data
+        - mountPath: /opt/bitnami/rabbitmq/secrets
+          name: rabbitmq-secrets
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      initContainers:
+      - args:
+        - -ec
+        - |
+          #!/bin/bash
+
+          . /opt/bitnami/scripts/liblog.sh
+
+          info "Copying plugins dir to empty dir"
+          # In order to not break the possibility of installing custom plugins, we need
+          # to make the plugins directory writable, so we need to copy it to an empty dir volume
+          cp -r --preserve=mode /opt/bitnami/rabbitmq/plugins/ /emptydir/app-plugins-dir
+        command:
+        - /bin/bash
+        image: docker.io/bitnamilegacy/rabbitmq:4.1.3-debian-12-r1
+        imagePullPolicy: IfNotPresent
+        name: prepare-plugins-dir
+        resources:
+          limits:
+            cpu: 375m
+            ephemeral-storage: 2Gi
+            memory: 384Mi
+          requests:
+            cpu: 250m
+            ephemeral-storage: 50Mi
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 1001
+          runAsNonRoot: true
+          runAsUser: 1001
+          seLinuxOptions: {}
+          seccompProfile:
+            type: RuntimeDefault
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /emptydir
+          name: empty-dir
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+      serviceAccount: rabbitmq
+      serviceAccountName: rabbitmq
+      terminationGracePeriodSeconds: 120
+      volumes:
+      - emptyDir: {}
+        name: empty-dir
+      - name: data
+        emptyDir: {}
+      - name: configuration
+        projected:
+          defaultMode: 420
+          sources:
+          - secret:
+              name: rabbitmq-config
+      - name: rabbitmq-secrets
+        projected:
+          defaultMode: 420
+          sources:
+          - secret:
+              name: rabbitmq
+          - secret:
+              name: rabbitmq
+  updateStrategy:
+    type: RollingUpdate
