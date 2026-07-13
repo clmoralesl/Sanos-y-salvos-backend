@@ -39,7 +39,7 @@ public class OrganizacionServiceImpl implements OrganizacionService {
                         "Nueva Solicitud de Organización",
                         "La organización '" + guardada.getNombreOrganizacion() + "' ha solicitado ser registrada en el sistema.",
                         "ALERTA",
-                        "/admin/organizaciones"
+                        "/admin/solicitud-org"
                 ));
 
         return mapToDTO(guardada);
@@ -96,6 +96,18 @@ public class OrganizacionServiceImpl implements OrganizacionService {
                     u.setEstadoMembresia("APROBADO");
                     usuarioRepository.save(u);
                 }
+            }
+        } else if ("RECHAZADA".equals(estado)) {
+            java.util.List<com.sanosysalvos.mascotas.entity.Usuario> usuarios = usuarioRepository.findByOrganizacionIdOrganizacion(id);
+            for (com.sanosysalvos.mascotas.entity.Usuario u : usuarios) {
+                u.setOrganizacion(null);
+                u.setEstadoMembresia("NINGUNO");
+                if (u.getTipoCuenta() != null && u.getTipoCuenta().getIdTipoCuenta() == 2L) {
+                    com.sanosysalvos.mascotas.entity.TipoCuenta tipoEstandar = new com.sanosysalvos.mascotas.entity.TipoCuenta();
+                    tipoEstandar.setIdTipoCuenta(1L);
+                    u.setTipoCuenta(tipoEstandar);
+                }
+                usuarioRepository.save(u);
             }
         }
 
