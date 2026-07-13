@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RazaStrategy implements SimilitudStrategy {
 
-    private static final double PUNTAJE_IGUAL = 25.0;
+    private static final double PUNTAJE_IGUAL = 20.0;
     private static final double PENALIZACION_DISTINTA = -10.0;
     private static final double PUNTAJE_NEUTRO = 0.0;
     private static final String OTRA = "Otra";

@@ -10,7 +10,7 @@ class EdadStrategyTest {
     private final EdadStrategy strategy = new EdadStrategy();
 
     @Test
-    void debeRetornar10CuandoEdadEsIgual() {
+    void debeRetornar5CuandoEdadEsIgual() {
         MascotaDTO base = MascotaDTO.builder()
                 .edadAproximada("1-3")
                 .build();
@@ -19,11 +19,11 @@ class EdadStrategyTest {
                 .edadAproximada("1-3")
                 .build();
 
-        assertEquals(10.0, strategy.calcularPuntaje(base, candidato));
+        assertEquals(5.0, strategy.calcularPuntaje(base, candidato), 0.001);
     }
 
     @Test
-    void debeRetornar5CuandoEdadesSonContiguas() {
+    void debeRetornar2Punto5CuandoEdadesSonContiguas() {
         MascotaDTO base = MascotaDTO.builder()
                 .edadAproximada("1-3")
                 .build();
@@ -32,11 +32,11 @@ class EdadStrategyTest {
                 .edadAproximada("3-7")
                 .build();
 
-        assertEquals(5.0, strategy.calcularPuntaje(base, candidato));
+        assertEquals(2.5, strategy.calcularPuntaje(base, candidato), 0.001);
     }
 
     @Test
-    void debeRetornarPenalizacionCuandoEdadesSonDistintas() {
+    void debeRetornarMenos1CuandoEdadesSonDistintas() {
         MascotaDTO base = MascotaDTO.builder()
                 .edadAproximada("0-1")
                 .build();
@@ -45,7 +45,7 @@ class EdadStrategyTest {
                 .edadAproximada("7+")
                 .build();
 
-        assertEquals(-2.0, strategy.calcularPuntaje(base, candidato));
+        assertEquals(-1.0, strategy.calcularPuntaje(base, candidato), 0.001);
     }
 
     @Test
@@ -56,6 +56,6 @@ class EdadStrategyTest {
                 .edadAproximada("1-3")
                 .build();
 
-        assertEquals(0.0, strategy.calcularPuntaje(base, candidato));
+        assertEquals(0.0, strategy.calcularPuntaje(base, candidato), 0.001);
     }
 }

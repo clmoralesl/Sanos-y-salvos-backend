@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class EdadStrategy implements SimilitudStrategy {
 
-    private static final double PUNTAJE_IGUAL = 10.0;
-    private static final double PUNTAJE_CERCANO = 5.0;
-    private static final double PENALIZACION_DISTINTA = -2.0;
+    private static final double PUNTAJE_IGUAL = 5.0;
+    private static final double PUNTAJE_CERCANO = 2.5;
+    private static final double PENALIZACION_DISTINTA = -1.0;
 
     @Override
     public double calcularPuntaje(MascotaDTO base, MascotaDTO candidato) {
