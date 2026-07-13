@@ -10,7 +10,7 @@ class ColorStrategyTest {
     private final ColorStrategy strategy = new ColorStrategy();
 
     @Test
-    void debeRetornar35CuandoColorPrimarioYSecundarioCoinciden() {
+    void debeRetornar15CuandoColorPrimarioYSecundarioCoinciden() {
         MascotaDTO base = MascotaDTO.builder()
                 .colorPrimario("Negro")
                 .colorSecundario("Blanco")
@@ -21,19 +21,19 @@ class ColorStrategyTest {
                 .colorSecundario("blanco")
                 .build();
 
-        assertEquals(35.0, strategy.calcularPuntaje(base, candidato));
-    }
-
-    @Test
-    void debeRetornar15CuandoColorPrimarioEsSimilar() {
-        MascotaDTO base = MascotaDTO.builder().colorPrimario("Negro").build();
-        MascotaDTO candidato = MascotaDTO.builder().colorPrimario("Gris").build();
-
         assertEquals(15.0, strategy.calcularPuntaje(base, candidato));
     }
 
     @Test
-    void debeRetornar20CuandoColoresEstanInvertidos() {
+    void debeRetornar5CuandoColorPrimarioEsSimilar() {
+        MascotaDTO base = MascotaDTO.builder().colorPrimario("Negro").build();
+        MascotaDTO candidato = MascotaDTO.builder().colorPrimario("Gris").build();
+
+        assertEquals(5.0, strategy.calcularPuntaje(base, candidato));
+    }
+
+    @Test
+    void debeRetornar8CuandoColoresEstanInvertidos() {
         MascotaDTO base = MascotaDTO.builder()
                 .colorPrimario("Negro")
                 .colorSecundario("Blanco")
@@ -44,7 +44,7 @@ class ColorStrategyTest {
                 .colorSecundario("Negro")
                 .build();
 
-        assertEquals(20.0, strategy.calcularPuntaje(base, candidato));
+        assertEquals(8.0, strategy.calcularPuntaje(base, candidato));
     }
 
     @Test

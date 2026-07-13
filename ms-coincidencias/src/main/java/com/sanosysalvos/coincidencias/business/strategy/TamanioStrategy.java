@@ -8,6 +8,7 @@ public class TamanioStrategy implements SimilitudStrategy {
 
     private static final double MAX_PUNTAJE = 30.0;
     private static final double PARTIAL_PUNTAJE = 15.0;
+    private static final double PENALIZACION_DISTINTA = -5.0;
 
     @Override
     public double calcularPuntaje(MascotaDTO base, MascotaDTO candidato) {
@@ -22,11 +23,15 @@ public class TamanioStrategy implements SimilitudStrategy {
         int valBase = getScaleValue(base.getTamanio());
         int valCandidato = getScaleValue(candidato.getTamanio());
 
-        if (valBase > 0 && valCandidato > 0 && Math.abs(valBase - valCandidato) == 1) {
+        if (valBase == 0 || valCandidato == 0) {
+            return 0.0;
+        }
+
+        if (Math.abs(valBase - valCandidato) == 1) {
             return PARTIAL_PUNTAJE;
         }
 
-        return 0.0;
+        return PENALIZACION_DISTINTA;
     }
 
     private int getScaleValue(String label) {

@@ -21,6 +21,9 @@ public class Mascota {
     @Column(name = "nombre_mascota")
     private String nombreMascota;
 
+    @Column(name = "chip")
+    private String chip;
+
     @Column(name = "descripcion")
     private String descripcion;
 

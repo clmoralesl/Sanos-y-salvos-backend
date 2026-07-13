@@ -53,6 +53,7 @@ public class MascotaServiceImpl implements MascotaService {
                 .descripcion(request.getDescripcion())
                 .colorPrimario(request.getColorPrimario())
                 .colorSecundario(request.getColorSecundario())
+                .chip(request.getChip())
                 .raza(raza)
                 .tamanio(tamanio)
                 .usuario(usuario)
@@ -123,6 +124,7 @@ public class MascotaServiceImpl implements MascotaService {
         mascota.setDescripcion(request.getDescripcion());
         mascota.setColorPrimario(request.getColorPrimario());
         mascota.setColorSecundario(request.getColorSecundario());
+        mascota.setChip(request.getChip());
         mascota.setRaza(raza);
         mascota.setTamanio(tamanio);
         mascota.setCaracteristicas(caracteristicas);
@@ -157,6 +159,7 @@ public class MascotaServiceImpl implements MascotaService {
         return MascotaResponseDTO.builder()
                 .idMascota(mascota.getIdMascota())
                 .nombreMascota(mascota.getNombreMascota())
+                .chip(mascota.getChip())
                 .descripcion(mascota.getDescripcion())
                 .colorPrimario(mascota.getColorPrimario())
                 .colorSecundario(mascota.getColorSecundario())

@@ -15,6 +15,7 @@ public class MascotaResponseDTO {
 
     private Long idMascota;
     private String nombreMascota;
+    private String chip;
     private String descripcion;
     private String nombreRaza;
     private String especieRaza;

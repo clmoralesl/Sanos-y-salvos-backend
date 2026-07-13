@@ -26,7 +26,7 @@ public class TamanioStrategyTest {
     public void testScoreFarMismatch() {
         MascotaDTO base = MascotaDTO.builder().tamanio("Grande").build();
         MascotaDTO candidato = MascotaDTO.builder().tamanio("Pequeño").build();
-        assertEquals(0.0, strategy.calcularPuntaje(base, candidato));
+        assertEquals(-5.0, strategy.calcularPuntaje(base, candidato));
     }
 
     @Test

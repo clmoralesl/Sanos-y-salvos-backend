@@ -22,25 +22,25 @@ public class ColorStrategy implements SimilitudStrategy {
         double score = 0.0;
 
         if (p1.equals(p2) && !p1.isEmpty()) {
-            score += 30.0;
+            score += 10.0;
             if (s1.equals(s2) && !s1.isEmpty() && !s1.contains("ningun")) {
                 score += 5.0;
             }
         } else if (areColorsSimilar(p1, p2)) {
-            score += 15.0;
+            score += 5.0;
             if (s1.equals(s2) && !s1.isEmpty() && !s1.contains("ningun")) {
-                score += 5.0;
+                score += 2.0;
             }
         } else {
             boolean p1MatchesS2 = !p1.isEmpty() && p1.equals(s2);
             boolean p2MatchesS1 = !p2.isEmpty() && p2.equals(s1);
 
             if (p1MatchesS2 && p2MatchesS1) {
-                score += 20.0;
-            } else if (p1MatchesS2 || p2MatchesS1) {
-                score += 10.0;
-            } else if (areColorsSimilar(p1, s2) || areColorsSimilar(p2, s1)) {
                 score += 8.0;
+            } else if (p1MatchesS2 || p2MatchesS1) {
+                score += 4.0;
+            } else if (areColorsSimilar(p1, s2) || areColorsSimilar(p2, s1)) {
+                score += 2.0;
             }
         }
 

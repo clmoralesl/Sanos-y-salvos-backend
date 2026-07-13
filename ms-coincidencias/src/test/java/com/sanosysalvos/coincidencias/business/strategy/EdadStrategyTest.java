@@ -36,7 +36,7 @@ class EdadStrategyTest {
     }
 
     @Test
-    void debeRetornarCeroCuandoEdadesSonDistintas() {
+    void debeRetornarPenalizacionCuandoEdadesSonDistintas() {
         MascotaDTO base = MascotaDTO.builder()
                 .edadAproximada("0-1")
                 .build();
@@ -45,7 +45,7 @@ class EdadStrategyTest {
                 .edadAproximada("7+")
                 .build();
 
-        assertEquals(0.0, strategy.calcularPuntaje(base, candidato));
+        assertEquals(-3.0, strategy.calcularPuntaje(base, candidato));
     }
 
     @Test

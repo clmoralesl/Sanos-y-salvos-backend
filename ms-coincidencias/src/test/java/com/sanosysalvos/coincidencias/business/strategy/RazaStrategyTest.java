@@ -19,7 +19,7 @@ public class RazaStrategyTest {
     public void testScoreMismatches() {
         MascotaDTO base = MascotaDTO.builder().raza("Labrador").build();
         MascotaDTO candidato = MascotaDTO.builder().raza("Poodle").build();
-        assertEquals(0.0, strategy.calcularPuntaje(base, candidato));
+        assertEquals(-10.0, strategy.calcularPuntaje(base, candidato));
     }
 
     @Test
@@ -33,6 +33,6 @@ public class RazaStrategyTest {
     public void testScoreWithNullBreed() {
         MascotaDTO base = MascotaDTO.builder().raza(null).build();
         MascotaDTO candidato = MascotaDTO.builder().raza("Poodle").build();
-        assertEquals(25.0, strategy.calcularPuntaje(base, candidato));
+        assertEquals(0.0, strategy.calcularPuntaje(base, candidato));
     }
 }
