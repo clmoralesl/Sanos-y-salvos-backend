@@ -27,10 +27,6 @@
         <maven.compiler.target>17</maven.compiler.target>
         <spring-boot.version>3.2.3</spring-boot.version>
         
-        <!-- SonarQube Configuration -->
-        <sonar.host.url>http://localhost:9000</sonar.host.url>
-        <sonar.login>admin</sonar.login>
-        <sonar.password>admin</sonar.password>
         <!-- JaCoCo coverage report location -->
         <sonar.coverage.jacoco.xmlReportPaths>
             ${project.basedir}/target/site/jacoco/jacoco.xml
