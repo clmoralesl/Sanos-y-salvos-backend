@@ -4,8 +4,8 @@ import com.sanosysalvos.mascotas.dto.ReporteRequestDTO;
 import com.sanosysalvos.mascotas.dto.ReporteResponseDTO;
 import com.sanosysalvos.mascotas.entity.*;
 import com.sanosysalvos.mascotas.repository.*;
-import com.sanosysalvos.mascotas.client.CoincidenciaClient;
-import com.sanosysalvos.mascotas.client.UbicacionClient;
+import com.sanosysalvos.mascotas.service.MascotasIntegrationService;
+import com.sanosysalvos.mascotas.service.ReporteFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,10 +39,10 @@ public class ReporteServiceImplTest {
     private MascotaRepository mascotaRepository;
 
     @Mock
-    private CoincidenciaClient coincidenciaClient;
+    private MascotasIntegrationService integrationService;
 
     @Mock
-    private UbicacionClient ubicacionClient;
+    private ReporteFactory reporteFactory;
 
     @InjectMocks
     private ReporteServiceImpl service;
@@ -69,8 +69,8 @@ public class ReporteServiceImplTest {
 
         when(usuarioRepository.findByAuth0Id("auth0")).thenReturn(Optional.of(usuario));
         when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascota));
-        when(tipoReporteRepository.findById(2L)).thenReturn(Optional.of(tipo));
-        when(ubicacionClient.obtenerUbicacion(3L)).thenThrow(new RuntimeException("Conexión perdida"));
+        
+        when(integrationService.obtenerUbicacion(3L)).thenThrow(new RuntimeException("Conexión perdida"));
 
         assertThrows(RuntimeException.class, () -> service.crearReporte(request, "auth0"));
     }
@@ -91,9 +91,19 @@ public class ReporteServiceImplTest {
 
         when(usuarioRepository.findByAuth0Id("auth0")).thenReturn(Optional.of(usuario));
         when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascota));
-        when(tipoReporteRepository.findById(2L)).thenReturn(Optional.of(tipo));
-        when(ubicacionClient.obtenerUbicacion(3L)).thenReturn(ResponseEntity.ok().build());
-        when(estadoReporteRepository.findByDescripcion("Activo")).thenReturn(estado);
+        
+        when(integrationService.obtenerUbicacion(3L)).thenReturn(ResponseEntity.ok().build());
+
+        Reporte createdReport = Reporte.builder()
+                .fechaIncidente(request.getFechaIncidente())
+                .idUbicacionReporte(3L)
+                .tipoReporte(tipo)
+                .estadoReporte(estado)
+                .usuario(usuario)
+                .mascota(mascota)
+                .build();
+                
+        when(reporteFactory.crearReporte(request, usuario, mascota)).thenReturn(createdReport);
 
         Reporte savedReport = Reporte.builder()
                 .idReporte(100L)
@@ -107,6 +117,13 @@ public class ReporteServiceImplTest {
                 .build();
 
         when(reporteRepository.save(any(Reporte.class))).thenReturn(savedReport);
+
+        ReporteResponseDTO expectedResponse = ReporteResponseDTO.builder()
+                .idReporte(100L)
+                .estadoReporte("Activo")
+                .build();
+                
+        when(reporteFactory.mapearAResponse(savedReport)).thenReturn(expectedResponse);
 
         ReporteResponseDTO response = service.crearReporte(request, "auth0");
 
