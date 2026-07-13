@@ -76,11 +76,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuario = usuarioRepository.findByAuth0Id(auth0Id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró un perfil para el Auth0 ID proporcionado."));
 
-        Long idTipoCuenta = (request.getIdTipoCuenta() != null) ? request.getIdTipoCuenta() : 1L;
-        TipoCuenta tipoCuenta = tipoCuentaRepository.findById(idTipoCuenta)
-                .orElseThrow(() -> new ResourceNotFoundException("Tipo de cuenta no encontrado con ID: " + idTipoCuenta));
+        // Preserve existing tipoCuenta. A user cannot change their own role via /me.
+        TipoCuenta tipoCuenta = usuario.getTipoCuenta();
 
-        Organizacion organizacion = null;
+        Organizacion organizacion = usuario.getOrganizacion();
         if (request.getIdOrganizacion() != null) {
             organizacion = organizacionRepository.findById(request.getIdOrganizacion())
                     .orElseThrow(() -> new ResourceNotFoundException("Organización no encontrada con ID: " + request.getIdOrganizacion()));
@@ -107,8 +106,6 @@ public class UsuarioServiceImpl implements UsuarioService {
                     );
                 }
             }
-        } else {
-            usuario.setEstadoMembresia("NINGUNO");
         }
 
         usuario.setNombre(request.getNombre());
