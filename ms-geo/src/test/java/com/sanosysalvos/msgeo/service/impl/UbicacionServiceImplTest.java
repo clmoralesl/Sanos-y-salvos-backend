@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,7 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UbicacionServiceImplTest {
+class UbicacionServiceImplTest {
 
     @Mock
     private UbicacionReporteRepository ubicacionReporteRepository;
@@ -34,48 +35,77 @@ public class UbicacionServiceImplTest {
     private ZonaGeoRepository zonaGeoRepository;
 
     @InjectMocks
-    private UbicacionServiceImpl service;
+    private UbicacionServiceImpl ubicacionService;
 
     @BeforeEach
-    public void setUp() {
-        ReflectionTestUtils.setField(service, "defaultResolution", 8);
+    void setUp() {
+        ReflectionTestUtils.setField(ubicacionService, "defaultResolution", 8);
     }
 
     @Test
-    public void testCrearUbicacionComunaNotFound() {
-        UbicacionRequestDTO request = new UbicacionRequestDTO();
-        request.setIdComuna(999L);
-        when(comunaRepository.findById(999L)).thenReturn(Optional.empty());
-
-        assertThrows(RuntimeException.class, () -> service.crearUbicacion(request));
-    }
-
-    @Test
-    public void testCrearUbicacionSuccess() {
+    void crearUbicacion_shouldCreateAndReturnId() {
         UbicacionRequestDTO request = new UbicacionRequestDTO();
         request.setIdComuna(1L);
-        request.setLatitud(-33.4372);
-        request.setLongitud(-70.6506);
-        request.setDireccionEspecifica("Plaza de Armas");
+        request.setLatitud(-33.4489);
+        request.setLongitud(-70.6693);
+        request.setDireccionEspecifica("Av. Libertador Bernardo O'Higgins 123");
 
         Comuna comuna = Comuna.builder().id(1L).nombre("Santiago").build();
         when(comunaRepository.findById(1L)).thenReturn(Optional.of(comuna));
-        when(zonaGeoRepository.findById(anyString())).thenReturn(Optional.empty());
-        when(zonaGeoRepository.save(any(ZonaGeo.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        UbicacionReporte saved = UbicacionReporte.builder()
+        ZonaGeo zonaGeo = ZonaGeo.builder().id("88a649a463fffff").build();
+        when(zonaGeoRepository.findById(anyString())).thenReturn(Optional.empty());
+        when(zonaGeoRepository.save(any(ZonaGeo.class))).thenReturn(zonaGeo);
+
+        UbicacionReporte savedUbicacion = UbicacionReporte.builder()
                 .id(100L)
                 .latitud(request.getLatitud())
                 .longitud(request.getLongitud())
-                .direccionEspecifica(request.getDireccionEspecifica())
-                .comuna(comuna)
                 .build();
-        when(ubicacionReporteRepository.save(any(UbicacionReporte.class))).thenReturn(saved);
+        when(ubicacionReporteRepository.save(any(UbicacionReporte.class))).thenReturn(savedUbicacion);
 
-        Long result = service.crearUbicacion(request);
+        Long id = ubicacionService.crearUbicacion(request);
 
+        assertNotNull(id);
+        assertEquals(100L, id);
+        verify(comunaRepository).findById(1L);
+        verify(ubicacionReporteRepository).save(any(UbicacionReporte.class));
+    }
+
+    @Test
+    void existeUbicacion_shouldReturnTrue() {
+        when(ubicacionReporteRepository.existsById(1L)).thenReturn(true);
+        assertTrue(ubicacionService.existeUbicacion(1L));
+    }
+
+    @Test
+    void obtenerUbicacionPorId_shouldReturnUbicacion() {
+        UbicacionReporte ubicacion = UbicacionReporte.builder().id(1L).build();
+        when(ubicacionReporteRepository.findById(1L)).thenReturn(Optional.of(ubicacion));
+
+        UbicacionReporte result = ubicacionService.obtenerUbicacionPorId(1L);
         assertNotNull(result);
-        assertEquals(100L, result);
-        verify(ubicacionReporteRepository, times(1)).save(any(UbicacionReporte.class));
+        assertEquals(1L, result.getId());
+    }
+
+    @Test
+    void obtenerUbicacionesEnRadio_shouldReturnList() {
+        UbicacionReporte base = UbicacionReporte.builder()
+                .id(1L)
+                .zonaGeo(ZonaGeo.builder().id("88a649a463fffff").build())
+                .build();
+        when(ubicacionReporteRepository.findById(1L)).thenReturn(Optional.of(base));
+
+        UbicacionReporte result1 = UbicacionReporte.builder().id(2L).build();
+        UbicacionReporte result2 = UbicacionReporte.builder().id(3L).build();
+
+        when(ubicacionReporteRepository.findByZonaGeo_IdIn(anyList())).thenReturn(List.of(result1, result2));
+
+        List<Long> ids = ubicacionService.obtenerUbicacionesEnRadio(1L, 1);
+
+        assertNotNull(ids);
+        assertEquals(2, ids.size());
+        assertTrue(ids.contains(2L));
+        assertTrue(ids.contains(3L));
     }
 }

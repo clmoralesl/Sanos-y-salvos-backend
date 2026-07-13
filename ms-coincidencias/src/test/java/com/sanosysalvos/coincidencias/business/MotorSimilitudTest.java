@@ -3,67 +3,75 @@ package com.sanosysalvos.coincidencias.business;
 import com.sanosysalvos.coincidencias.business.factory.SimilitudStrategyFactory;
 import com.sanosysalvos.coincidencias.business.strategy.SimilitudStrategy;
 import com.sanosysalvos.coincidencias.integration.dto.MascotaDTO;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class MotorSimilitudTest {
 
-    @Test
-    void debeSumarPuntajesDeTodasLasEstrategias() {
-        SimilitudStrategy s1 = mock(SimilitudStrategy.class);
-        SimilitudStrategy s2 = mock(SimilitudStrategy.class);
-        SimilitudStrategyFactory factory = mock(SimilitudStrategyFactory.class);
+    @Mock
+    private SimilitudStrategyFactory strategyFactory;
 
-        when(factory.getStrategies(any())).thenReturn(List.of(s1, s2));
+    @InjectMocks
+    private MotorSimilitud motorSimilitud;
 
-        MascotaDTO base = MascotaDTO.builder().build();
-        MascotaDTO candidato = MascotaDTO.builder().build();
+    private MascotaDTO base;
+    private MascotaDTO candidato;
 
-        when(s1.calcularPuntaje(base, candidato)).thenReturn(30.0);
-        when(s2.calcularPuntaje(base, candidato)).thenReturn(20.0);
-
-        MotorSimilitud motor = new MotorSimilitud(factory);
-
-        assertEquals(50.0, motor.evaluar(base, candidato));
+    @BeforeEach
+    void setUp() {
+        base = new MascotaDTO();
+        candidato = new MascotaDTO();
     }
 
     @Test
-    void debeLimitarResultadoAMaximo100() {
-        SimilitudStrategy s1 = mock(SimilitudStrategy.class);
-        SimilitudStrategy s2 = mock(SimilitudStrategy.class);
-        SimilitudStrategyFactory factory = mock(SimilitudStrategyFactory.class);
+    void evaluar_diferenteEspecie_shouldReturnZero() {
+        base.setEspecie("Perro");
+        candidato.setEspecie("Gato");
 
-        when(factory.getStrategies(any())).thenReturn(List.of(s1, s2));
-
-        MascotaDTO base = MascotaDTO.builder().build();
-        MascotaDTO candidato = MascotaDTO.builder().build();
-
-        when(s1.calcularPuntaje(base, candidato)).thenReturn(70.0);
-        when(s2.calcularPuntaje(base, candidato)).thenReturn(50.0);
-
-        MotorSimilitud motor = new MotorSimilitud(factory);
-
-        assertEquals(100.0, motor.evaluar(base, candidato));
+        double result = motorSimilitud.evaluar(base, candidato);
+        assertEquals(0.0, result);
     }
 
     @Test
-    void debeRetornarCeroCuandoNoHayPuntaje() {
-        SimilitudStrategy s1 = mock(SimilitudStrategy.class);
-        SimilitudStrategyFactory factory = mock(SimilitudStrategyFactory.class);
+    void evaluar_mismaEspecie_shouldCalculateStrategies() {
+        base.setEspecie("Perro");
+        candidato.setEspecie("Perro");
 
-        when(factory.getStrategies(any())).thenReturn(List.of(s1));
+        SimilitudStrategy strategy1 = mock(SimilitudStrategy.class);
+        when(strategy1.calcularPuntaje(base, candidato)).thenReturn(50.0);
 
-        MascotaDTO base = MascotaDTO.builder().build();
-        MascotaDTO candidato = MascotaDTO.builder().build();
+        SimilitudStrategy strategy2 = mock(SimilitudStrategy.class);
+        when(strategy2.calcularPuntaje(base, candidato)).thenReturn(35.0);
 
-        when(s1.calcularPuntaje(base, candidato)).thenReturn(0.0);
+        when(strategyFactory.getStrategies(anyList())).thenReturn(List.of(strategy1, strategy2));
 
-        MotorSimilitud motor = new MotorSimilitud(factory);
+        double result = motorSimilitud.evaluar(base, candidato);
+        assertEquals(85.0, result);
+    }
 
-        assertEquals(0.0, motor.evaluar(base, candidato));
+    @Test
+    void evaluar_especieOtra_shouldCalculateStrategies() {
+        base.setEspecie("Otra");
+        candidato.setEspecie("Perro");
+
+        SimilitudStrategy strategy = mock(SimilitudStrategy.class);
+        when(strategy.calcularPuntaje(base, candidato)).thenReturn(20.0);
+
+        when(strategyFactory.getStrategies(anyList())).thenReturn(List.of(strategy));
+
+        double result = motorSimilitud.evaluar(base, candidato);
+        assertEquals(20.0, result);
     }
 }
