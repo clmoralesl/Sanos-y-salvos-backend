@@ -18,6 +18,8 @@ public class MascotaRequestDTO {
     @NotBlank(message = "El nombre de la mascota es obligatorio")
     private String nombreMascota;
 
+    private String numeroChip;
+
     private String descripcion;
 
     @NotNull(message = "El ID de la raza es obligatorio")

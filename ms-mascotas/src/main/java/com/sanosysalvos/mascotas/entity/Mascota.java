@@ -18,6 +18,9 @@ public class Mascota {
     @Column(name = "id_mascota")
     private Long idMascota;
 
+    @Column(name = "numero_chip")
+    private String numeroChip;
+
     @Column(name = "nombre_mascota")
     private String nombreMascota;
 

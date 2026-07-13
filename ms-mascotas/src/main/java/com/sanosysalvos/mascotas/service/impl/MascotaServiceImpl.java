@@ -49,6 +49,7 @@ public class MascotaServiceImpl implements MascotaService {
         }
 
         Mascota mascota = Mascota.builder()
+                .numeroChip(normalizarNumeroChip(request.getNumeroChip()))
                 .nombreMascota(request.getNombreMascota())
                 .descripcion(request.getDescripcion())
                 .colorPrimario(request.getColorPrimario())
@@ -118,7 +119,7 @@ public class MascotaServiceImpl implements MascotaService {
         if (request.getIdsCaracteristicas() != null && !request.getIdsCaracteristicas().isEmpty()) {
             caracteristicas = caracteristicaRepository.findAllById(request.getIdsCaracteristicas());
         }
-
+        mascota.setNumeroChip(normalizarNumeroChip(request.getNumeroChip()));
         mascota.setNombreMascota(request.getNombreMascota());
         mascota.setDescripcion(request.getDescripcion());
         mascota.setColorPrimario(request.getColorPrimario());
@@ -156,6 +157,7 @@ public class MascotaServiceImpl implements MascotaService {
     private MascotaResponseDTO mapToResponseDTO(Mascota mascota) {
         return MascotaResponseDTO.builder()
                 .idMascota(mascota.getIdMascota())
+                .numeroChip(mascota.getNumeroChip())
                 .nombreMascota(mascota.getNombreMascota())
                 .descripcion(mascota.getDescripcion())
                 .colorPrimario(mascota.getColorPrimario())
@@ -171,4 +173,22 @@ public class MascotaServiceImpl implements MascotaService {
                 .edadAproximada(mascota.getEdadAproximada())
                 .build();
     }
+    private String normalizarNumeroChip(String numeroChip) {
+    if (numeroChip == null) {
+        return null;
+    }
+
+    String normalizado = numeroChip
+            .trim()
+            .replaceAll("[\\s-]", "")
+            .toUpperCase();
+
+    if (normalizado.isBlank()
+            || normalizado.equals("NOTIENE")
+            || normalizado.equals("DESCONOCIDO")) {
+        return null;
+    }
+
+    return normalizado;
+}
 }

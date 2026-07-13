@@ -16,6 +16,9 @@ public class MascotaDTO {
     @JsonProperty("idMascota")
     private Long id;
 
+    @JsonProperty("numeroChip")
+    private String numeroChip;
+
     @JsonProperty("nombreMascota")
     private String nombre;
 

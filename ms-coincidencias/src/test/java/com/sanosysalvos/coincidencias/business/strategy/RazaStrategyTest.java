@@ -10,26 +10,26 @@ class RazaStrategyTest {
     private final RazaStrategy strategy = new RazaStrategy();
 
     @Test
-    void debeRetornarPuntajeMaximoCuandoRazaEsIgual() {
+    void debeRetornarPuntajeCuandoRazaEsIgual() {
         MascotaDTO base = MascotaDTO.builder().raza("Labrador").build();
-        MascotaDTO candidato = MascotaDTO.builder().raza("labrador").build();
-
-        assertEquals(40.0, strategy.calcularPuntaje(base, candidato));
-    }
-
-    @Test
-    void debeRetornarPuntajeParcialCuandoRazaEsGenerica() {
-        MascotaDTO base = MascotaDTO.builder().raza("Mestizo").build();
-        MascotaDTO candidato = MascotaDTO.builder().raza("Poodle").build();
+        MascotaDTO candidato = MascotaDTO.builder().raza("Labrador").build();
 
         assertEquals(25.0, strategy.calcularPuntaje(base, candidato));
     }
 
     @Test
-    void debeRetornarCeroCuandoRazaEsDistinta() {
-        MascotaDTO base = MascotaDTO.builder().raza("Labrador").build();
+    void debeRetornarPuntajeNeutroCuandoRazaEsOtra() {
+        MascotaDTO base = MascotaDTO.builder().raza("Otra").build();
         MascotaDTO candidato = MascotaDTO.builder().raza("Poodle").build();
 
         assertEquals(0.0, strategy.calcularPuntaje(base, candidato));
+    }
+
+    @Test
+    void debeRetornarPenalizacionCuandoRazaEsDistinta() {
+        MascotaDTO base = MascotaDTO.builder().raza("Labrador").build();
+        MascotaDTO candidato = MascotaDTO.builder().raza("Poodle").build();
+
+        assertEquals(-10.0, strategy.calcularPuntaje(base, candidato));
     }
 }

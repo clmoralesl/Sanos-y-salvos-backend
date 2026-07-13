@@ -6,30 +6,30 @@ import org.springframework.stereotype.Component;
 @Component
 public class RazaStrategy implements SimilitudStrategy {
 
-    private static final double MAX_PUNTAJE = 40.0;
-    private static final double PARTIAL_PUNTAJE = 25.0;
+    private static final double PUNTAJE_IGUAL = 25.0;
+    private static final double PENALIZACION_DISTINTA = -10.0;
+    private static final double PUNTAJE_NEUTRO = 0.0;
+    private static final String OTRA = "Otra";
 
     @Override
     public double calcularPuntaje(MascotaDTO base, MascotaDTO candidato) {
-        if (base.getRaza() != null && base.getRaza().equalsIgnoreCase(candidato.getRaza())) {
-            return MAX_PUNTAJE;
-        }
-        if (isGeneric(base.getRaza()) || isGeneric(candidato.getRaza())) {
-            return PARTIAL_PUNTAJE;
-        }
-        return 0.0;
-    }
 
-    private boolean isGeneric(String breed) {
-        if (breed == null) {
-            return true;
+        String razaBase = base.getRaza();
+        String razaCandidato = candidato.getRaza();
+
+        if (razaBase == null || razaCandidato == null) {
+            return PUNTAJE_NEUTRO;
         }
-        String normalized = breed.toLowerCase();
-        return normalized.contains("no lo se") || 
-               normalized.contains("mestizo") || 
-               normalized.contains("otro") || 
-               normalized.contains("callejero") || 
-               normalized.contains("comun");
+
+        if (OTRA.equalsIgnoreCase(razaBase)
+                || OTRA.equalsIgnoreCase(razaCandidato)) {
+            return PUNTAJE_NEUTRO;
+        }
+
+        if (razaBase.equalsIgnoreCase(razaCandidato)) {
+            return PUNTAJE_IGUAL;
+        }
+
+        return PENALIZACION_DISTINTA;
     }
 }
-

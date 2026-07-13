@@ -14,7 +14,7 @@ class TamanioStrategyTest {
         MascotaDTO base = MascotaDTO.builder().tamanio("Mediano").build();
         MascotaDTO candidato = MascotaDTO.builder().tamanio("mediano").build();
 
-        assertEquals(30.0, strategy.calcularPuntaje(base, candidato));
+        assertEquals(15.0, strategy.calcularPuntaje(base, candidato));
     }
 
     @Test
@@ -22,14 +22,14 @@ class TamanioStrategyTest {
         MascotaDTO base = MascotaDTO.builder().tamanio("Pequeño").build();
         MascotaDTO candidato = MascotaDTO.builder().tamanio("Mediano").build();
 
-        assertEquals(15.0, strategy.calcularPuntaje(base, candidato));
+        assertEquals(7.0, strategy.calcularPuntaje(base, candidato));
     }
 
     @Test
-    void debeRetornarCeroCuandoTamaniosSonMuyDistintos() {
+    void debeRetornarPenalizacionCuandoTamaniosSonMuyDistintos() {
         MascotaDTO base = MascotaDTO.builder().tamanio("Pequeño").build();
         MascotaDTO candidato = MascotaDTO.builder().tamanio("Grande").build();
 
-        assertEquals(0.0, strategy.calcularPuntaje(base, candidato));
+        assertEquals(-2.0, strategy.calcularPuntaje(base, candidato));
     }
 }

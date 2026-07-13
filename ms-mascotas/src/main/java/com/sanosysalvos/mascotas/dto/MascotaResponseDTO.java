@@ -14,6 +14,7 @@ import java.util.List;
 public class MascotaResponseDTO {
 
     private Long idMascota;
+    private String numeroChip;
     private String nombreMascota;
     private String descripcion;
     private String nombreRaza;
