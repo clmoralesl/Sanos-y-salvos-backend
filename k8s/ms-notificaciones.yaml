@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: ms-notificaciones
-        image: ${ECR_URL}/ms-notificaciones:latest
+        image: ECR_REGISTRY_PLACEHOLDER/sanos-salvos-ms-notificaciones:IMAGE_TAG_PLACEHOLDER
         imagePullPolicy: Always
         env:
         - name: DB_HOST

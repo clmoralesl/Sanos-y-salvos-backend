@@ -5,7 +5,8 @@ locals {
     "sanos-salvos-bff",
     "sanos-salvos-ms-mascotas",
     "sanos-salvos-ms-geo",
-    "sanos-salvos-ms-coincidencias"
+    "sanos-salvos-ms-coincidencias",
+    "sanos-salvos-ms-notificaciones"
   ]
 }
 
