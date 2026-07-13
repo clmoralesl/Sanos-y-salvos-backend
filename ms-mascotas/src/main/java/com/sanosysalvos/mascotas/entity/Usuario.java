@@ -38,4 +38,7 @@ public class Usuario {
 
     @Column(name = "estado_membresia")
     private String estadoMembresia;
+
+    @Column(name = "url_foto_perfil")
+    private String urlFotoPerfil;
 }

@@ -54,6 +54,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .tipoCuenta(tipoCuenta)
                 .organizacion(organizacion)
                 .estadoMembresia(estadoMembresia)
+                .urlFotoPerfil(request.getUrlFotoPerfil())
                 .build();
 
         Usuario guardado = usuarioRepository.save(nuevoUsuario);
@@ -113,6 +114,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setTelefono(request.getTelefono());
         usuario.setTipoCuenta(tipoCuenta);
         usuario.setOrganizacion(organizacion);
+        usuario.setUrlFotoPerfil(request.getUrlFotoPerfil());
 
         Usuario guardado = usuarioRepository.save(usuario);
         return mapToDTO(guardado);
@@ -171,6 +173,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setTelefono(request.getTelefono());
         usuario.setTipoCuenta(tipoCuenta);
         usuario.setOrganizacion(organizacion);
+        usuario.setUrlFotoPerfil(request.getUrlFotoPerfil());
 
         Usuario guardado = usuarioRepository.save(usuario);
         return mapToDTO(guardado);
@@ -212,6 +215,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .telefono(usuario.getTelefono())
                 .descripcionTipoCuenta(usuario.getTipoCuenta() != null ? usuario.getTipoCuenta().getDescripcion() : null)
                 .estadoMembresia(usuario.getEstadoMembresia())
+                .urlFotoPerfil(usuario.getUrlFotoPerfil())
                 .build();
         
         if (usuario.getOrganizacion() != null) {

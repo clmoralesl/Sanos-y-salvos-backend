@@ -30,4 +30,5 @@ public class UsuarioRequestDTO {
 
     private Long idOrganizacion;
     private Long idTipoCuenta;
+    private String urlFotoPerfil;
 }

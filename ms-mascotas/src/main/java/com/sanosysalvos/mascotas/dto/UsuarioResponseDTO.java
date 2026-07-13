@@ -22,4 +22,5 @@ public class UsuarioResponseDTO {
     private String estadoOrganizacion;
     private String descripcionTipoCuenta;
     private String estadoMembresia;
+    private String urlFotoPerfil;
 }
