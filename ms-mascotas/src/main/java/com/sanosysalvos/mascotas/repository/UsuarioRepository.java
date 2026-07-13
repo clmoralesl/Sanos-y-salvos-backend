@@ -12,6 +12,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     
     Optional<Usuario> findByAuth0Id(String auth0Id);
 
+    java.util.List<Usuario> findByOrganizacionIdOrganizacion(Long idOrganizacion);
+
     
     Optional<Usuario> findByEmail(String email);
 

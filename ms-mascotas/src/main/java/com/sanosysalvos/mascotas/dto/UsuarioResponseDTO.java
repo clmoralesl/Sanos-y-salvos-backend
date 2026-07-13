@@ -17,6 +17,7 @@ public class UsuarioResponseDTO {
     private String email;
     private String telefono;
 
+    private Long idOrganizacion;
     private String nombreOrganizacion;
     private String estadoOrganizacion;
     private String descripcionTipoCuenta;

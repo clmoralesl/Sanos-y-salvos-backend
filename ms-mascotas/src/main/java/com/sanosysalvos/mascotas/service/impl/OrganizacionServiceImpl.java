@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrganizacionServiceImpl implements OrganizacionService {
-
     private final OrganizacionRepository organizacionRepository;
+    private final com.sanosysalvos.mascotas.repository.UsuarioRepository usuarioRepository;
 
     @Override
     public OrganizacionResponseDTO crearOrganizacion(OrganizacionRequestDTO request) {
@@ -74,6 +74,17 @@ public class OrganizacionServiceImpl implements OrganizacionService {
                 .orElseThrow(() -> new RuntimeException("Organización no encontrada con ID: " + id));
         organizacion.setEstado(estado);
         Organizacion actualizada = organizacionRepository.save(organizacion);
+
+        if ("ACTIVA".equals(estado)) {
+            java.util.List<com.sanosysalvos.mascotas.entity.Usuario> usuarios = usuarioRepository.findByOrganizacionIdOrganizacion(id);
+            for (com.sanosysalvos.mascotas.entity.Usuario u : usuarios) {
+                if (u.getTipoCuenta() != null && "ADMIN_ORG".equals(u.getTipoCuenta().getDescripcion())) {
+                    u.setEstadoMembresia("APROBADO");
+                    usuarioRepository.save(u);
+                }
+            }
+        }
+
         return mapToDTO(actualizada);
     }
 

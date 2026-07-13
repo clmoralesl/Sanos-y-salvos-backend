@@ -165,16 +165,22 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
     
     private UsuarioResponseDTO mapToDTO(Usuario usuario) {
-        return UsuarioResponseDTO.builder()
+        UsuarioResponseDTO dto = UsuarioResponseDTO.builder()
                 .idUsuario(usuario.getIdUsuario())
                 .auth0Id(usuario.getAuth0Id())
                 .nombre(usuario.getNombre())
                 .email(usuario.getEmail())
                 .telefono(usuario.getTelefono())
-                .nombreOrganizacion(usuario.getOrganizacion() != null ? usuario.getOrganizacion().getNombreOrganizacion() : null)
-                .estadoOrganizacion(usuario.getOrganizacion() != null ? usuario.getOrganizacion().getEstado() : null)
                 .descripcionTipoCuenta(usuario.getTipoCuenta() != null ? usuario.getTipoCuenta().getDescripcion() : null)
                 .estadoMembresia(usuario.getEstadoMembresia())
                 .build();
+        
+        if (usuario.getOrganizacion() != null) {
+            dto.setIdOrganizacion(usuario.getOrganizacion().getIdOrganizacion());
+            dto.setNombreOrganizacion(usuario.getOrganizacion().getNombreOrganizacion());
+            dto.setEstadoOrganizacion(usuario.getOrganizacion().getEstado());
+        }
+        
+        return dto;
     }
 }
