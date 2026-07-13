@@ -95,11 +95,29 @@ public class OrganizacionServiceImpl implements OrganizacionService {
                 if (u.getTipoCuenta() != null && "ADMIN_ORG".equals(u.getTipoCuenta().getDescripcion())) {
                     u.setEstadoMembresia("APROBADO");
                     usuarioRepository.save(u);
+                    
+                    rabbitMQProducer.enviarNotificacion(
+                            u.getIdUsuario(),
+                            "Organización Aprobada",
+                            "Felicidades, la organización '" + actualizada.getNombreOrganizacion() + "' ha sido aprobada.",
+                            "SISTEMA",
+                            "/admin/solicitudes-org"
+                    );
                 }
             }
         } else if ("RECHAZADA".equals(estado)) {
             java.util.List<com.sanosysalvos.mascotas.entity.Usuario> usuarios = usuarioRepository.findByOrganizacionIdOrganizacion(id);
             for (com.sanosysalvos.mascotas.entity.Usuario u : usuarios) {
+                if (u.getTipoCuenta() != null && "ADMIN_ORG".equals(u.getTipoCuenta().getDescripcion())) {
+                    rabbitMQProducer.enviarNotificacion(
+                            u.getIdUsuario(),
+                            "Organización Rechazada",
+                            "Tu solicitud para registrar la organización '" + actualizada.getNombreOrganizacion() + "' fue denegada.",
+                            "SISTEMA",
+                            "/perfil"
+                    );
+                }
+                
                 u.setOrganizacion(null);
                 u.setEstadoMembresia("NINGUNO");
                 if (u.getTipoCuenta() != null && u.getTipoCuenta().getIdTipoCuenta() == 2L) {
