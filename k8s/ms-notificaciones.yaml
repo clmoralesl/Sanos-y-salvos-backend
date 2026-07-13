@@ -25,6 +25,8 @@ spec:
           value: "root"
         - name: DB_PASSWORD
           value: "root"
+        - name: MS_MASCOTAS_URL
+          value: "http://ms-mascotas:8081"
         - name: RABBITMQ_HOST
           value: "rabbitmq"
         - name: RABBITMQ_PORT
