@@ -35,6 +35,9 @@ public class Notificacion {
     @Column(nullable = false)
     private Boolean leida;
 
+    @Column(name = "url_redireccion")
+    private String urlRedireccion;
+
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
 }

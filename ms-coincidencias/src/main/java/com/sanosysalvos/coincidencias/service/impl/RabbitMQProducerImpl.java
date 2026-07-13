@@ -1,6 +1,7 @@
-package com.sanosysalvos.mascotas.service;
+package com.sanosysalvos.coincidencias.service.impl;
 
-import com.sanosysalvos.mascotas.dto.NotificacionEventDTO;
+import com.sanosysalvos.coincidencias.integration.dto.NotificacionEventDTO;
+import com.sanosysalvos.coincidencias.service.RabbitMQProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RabbitMQProducer {
+public class RabbitMQProducerImpl implements RabbitMQProducer {
 
     private final RabbitTemplate rabbitTemplate;
 
@@ -20,7 +21,13 @@ public class RabbitMQProducer {
     @Value("${notificaciones.routing.key:notificaciones_routing_key}")
     private String routingKey;
 
+    @Override
     public void enviarNotificacion(Long idUsuarioDestino, String titulo, String mensaje, String tipo, String urlRedireccion) {
+        if (idUsuarioDestino == null) {
+            log.warn("No se puede enviar notificación: el idUsuarioDestino es nulo");
+            return;
+        }
+
         NotificacionEventDTO evento = NotificacionEventDTO.builder()
                 .idUsuarioDestino(idUsuarioDestino)
                 .titulo(titulo)
@@ -29,7 +36,7 @@ public class RabbitMQProducer {
                 .urlRedireccion(urlRedireccion)
                 .build();
         
-        log.info("Enviando notificación a RabbitMQ: {}", evento);
+        log.info("Enviando notificación a RabbitMQ (desde ms-coincidencias): {}", evento);
         rabbitTemplate.convertAndSend(exchange, routingKey, evento);
     }
 }

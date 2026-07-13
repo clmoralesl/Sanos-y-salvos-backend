@@ -14,12 +14,13 @@ public class NotificacionService {
 
     private final NotificacionRepository repository;
 
-    public void guardarNotificacion(Long idUsuarioDestino, String titulo, String mensaje, String tipo) {
+    public void guardarNotificacion(Long idUsuarioDestino, String titulo, String mensaje, String tipo, String urlRedireccion) {
         Notificacion notificacion = Notificacion.builder()
                 .idUsuarioDestino(idUsuarioDestino)
                 .titulo(titulo)
                 .mensaje(mensaje)
                 .tipo(tipo)
+                .urlRedireccion(urlRedireccion)
                 .leida(false)
                 .fechaCreacion(LocalDateTime.now())
                 .build();

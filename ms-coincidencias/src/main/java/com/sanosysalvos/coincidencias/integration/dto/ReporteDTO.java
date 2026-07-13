@@ -10,6 +10,7 @@ public class ReporteDTO {
     private Long idMascota;
     private String nombreMascota;
     private String especieMascota; 
+    private Long idUsuario;
     
     
     public MascotaDTO getMascota() {

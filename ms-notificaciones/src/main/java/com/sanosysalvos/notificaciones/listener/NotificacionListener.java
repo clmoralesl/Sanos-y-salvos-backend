@@ -22,7 +22,8 @@ public class NotificacionListener {
                     evento.getIdUsuarioDestino(),
                     evento.getTitulo(),
                     evento.getMensaje(),
-                    evento.getTipo()
+                    evento.getTipo(),
+                    evento.getUrlRedireccion()
             );
             log.info("Notificación persistida exitosamente para el usuario {}", evento.getIdUsuarioDestino());
         } catch (Exception e) {

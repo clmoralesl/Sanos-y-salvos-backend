@@ -14,4 +14,5 @@ public class NotificacionEventDTO {
     private String titulo;
     private String mensaje;
     private String tipo;
+    private String urlRedireccion;
 }

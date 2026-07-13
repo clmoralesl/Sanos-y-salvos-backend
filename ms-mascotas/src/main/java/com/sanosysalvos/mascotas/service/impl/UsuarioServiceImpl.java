@@ -102,7 +102,8 @@ public class UsuarioServiceImpl implements UsuarioService {
                             admin.get().getIdUsuario(),
                             "Nueva Solicitud de Voluntario",
                             "El usuario " + request.getNombre() + " ha solicitado unirse a tu organización.",
-                            "ALERTA"
+                            "ALERTA",
+                            "/mi-organizacion"
                     );
                 }
             }
@@ -200,7 +201,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                 ? "¡Felicidades! Tu solicitud para unirte a la organización ha sido aprobada." 
                 : "Lo sentimos, tu solicitud para unirte a la organización ha sido rechazada o revocada.";
                 
-        rabbitMQProducer.enviarNotificacion(usuario.getIdUsuario(), titulo, mensaje, "SISTEMA");
+        rabbitMQProducer.enviarNotificacion(usuario.getIdUsuario(), titulo, mensaje, "SISTEMA", "/perfil");
         
         return mapToDTO(guardado);
     }

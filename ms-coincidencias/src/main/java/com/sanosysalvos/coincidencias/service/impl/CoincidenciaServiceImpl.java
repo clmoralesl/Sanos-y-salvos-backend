@@ -25,6 +25,7 @@ public class CoincidenciaServiceImpl implements CoincidenciaService {
     private final GeoClient geoClient;
     private final MotorSimilitud motorSimilitud;
     private final CoincidenciaRepository repository;
+    private final com.sanosysalvos.coincidencias.service.RabbitMQProducer rabbitMQProducer;
 
     private static final double UMBRAL_SIMILITUD = 40.0;
 
@@ -102,6 +103,26 @@ public class CoincidenciaServiceImpl implements CoincidenciaService {
                     repository.save(nuevaCoincidencia);
                     log.info("Nueva coincidencia guardada: Perdida={}, Hallazgo={}, Similitud={}",
                             perdidaId, hallazgoId, similitud);
+                            
+                    // Send notifications to both users if we have their IDs
+                    if (reporteBase.getIdUsuario() != null) {
+                        rabbitMQProducer.enviarNotificacion(
+                                reporteBase.getIdUsuario(),
+                                "¡Posible Coincidencia Encontrada!",
+                                "Hemos encontrado un reporte que coincide en un " + String.format("%.0f", similitud) + "% con tu mascota.",
+                                "COINCIDENCIA",
+                                "/reportes/" + candidato.getIdReporte()
+                        );
+                    }
+                    if (candidato.getIdUsuario() != null) {
+                        rabbitMQProducer.enviarNotificacion(
+                                candidato.getIdUsuario(),
+                                "¡Posible Coincidencia Encontrada!",
+                                "Hemos encontrado un reporte que coincide en un " + String.format("%.0f", similitud) + "% con tu mascota.",
+                                "COINCIDENCIA",
+                                "/reportes/" + reporteBase.getIdReporte()
+                        );
+                    }
                 }
             }
         }

@@ -26,6 +26,14 @@ spec:
           value: root
         - name: MS_MASCOTAS_URL
           value: http://ms-mascotas:8081
+        - name: RABBITMQ_HOST
+          value: "rabbitmq"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USER
+          value: "user"
+        - name: RABBITMQ_PASSWORD
+          value: "password"
         - name: MS_GEO_URL
           value: http://ms-geo:8082
         resources:
