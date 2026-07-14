@@ -24,6 +24,10 @@ spring:
     username: ${RABBITMQ_USER:guest}
     password: ${RABBITMQ_PASSWORD:guest}
 
+rabbitmq:
+  queue:
+    reportes: ${RABBITMQ_QUEUE_REPORTES:reportes_queue}
+
 notificaciones:
   exchange:
     name: notificaciones_exchange
