@@ -9,23 +9,33 @@ import com.sanosysalvos.coincidencias.integration.dto.FiltroBusquedaMasivaDTO;
 import com.sanosysalvos.coincidencias.integration.dto.MascotaDTO;
 import com.sanosysalvos.coincidencias.integration.dto.ReporteDTO;
 import com.sanosysalvos.coincidencias.repository.CoincidenciaRepository;
+import com.sanosysalvos.coincidencias.service.RabbitMQProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class CoincidenciaServiceImplTest {
+class CoincidenciaServiceImplTest {
 
     @Mock
     private MascotasClient mascotasClient;
@@ -39,73 +49,118 @@ public class CoincidenciaServiceImplTest {
     @Mock
     private CoincidenciaRepository repository;
 
+    @Mock
+    private RabbitMQProducer rabbitMQProducer;
+
     @InjectMocks
-    private CoincidenciaServiceImpl service;
+    private CoincidenciaServiceImpl coincidenciaService;
 
     @BeforeEach
-    public void setUp() {
-        ReflectionTestUtils.setField(service, "radioBusqueda", 6);
+    void setUp() {
+        ReflectionTestUtils.setField(coincidenciaService, "radioBusqueda", 6);
     }
 
     @Test
-    public void testProcesarReporteNoUbicacion() {
-        ReporteDTO base = new ReporteDTO();
-        base.setIdReporte(1L);
-        base.setIdMascota(2L);
-        base.setIdUbicacionReporte(null);
-        when(mascotasClient.obtenerReportePorId(1L)).thenReturn(base);
+    void procesarReporte_reporteNoExiste() {
+        when(mascotasClient.obtenerReportePorId(1L)).thenReturn(null);
 
-        service.procesarReporte(1L);
+        coincidenciaService.procesarReporte(1L);
 
-        verify(geoClient, never()).obtenerUbicacionesCercanas(any(), anyInt());
+        verify(geoClient, never()).obtenerUbicacionesCercanas(anyLong(), anyInt());
+        verify(repository, never()).save(any());
     }
 
     @Test
-    public void testProcesarReporteNoMascota() {
-        ReporteDTO base = new ReporteDTO();
-        base.setIdReporte(1L);
-        base.setIdMascota(null);
-        base.setIdUbicacionReporte(3L);
-        when(mascotasClient.obtenerReportePorId(1L)).thenReturn(base);
+    void procesarReporte_sinMascotaAsociada() {
+        ReporteDTO reporte = new ReporteDTO();
+        reporte.setIdUbicacionReporte(100L);
 
-        service.procesarReporte(1L);
+        when(mascotasClient.obtenerReportePorId(1L)).thenReturn(reporte);
 
-        verify(mascotasClient, never()).obtenerMascotaPorId(any());
+        coincidenciaService.procesarReporte(1L);
+
+        verify(geoClient, never()).obtenerUbicacionesCercanas(anyLong(), anyInt());
     }
 
     @Test
-    public void testProcesarReporteSuccessfulMatch() {
-        ReporteDTO baseReport = new ReporteDTO();
-        baseReport.setIdReporte(1L);
-        baseReport.setIdMascota(2L);
-        baseReport.setIdUbicacionReporte(3L);
-        baseReport.setTipoReporte("Mascota Perdida");
-        baseReport.setEspecieMascota("Perro");
-        
-        MascotaDTO baseMascota = MascotaDTO.builder().id(2L).nombre("Firulais").build();
-        
-        when(mascotasClient.obtenerReportePorId(1L)).thenReturn(baseReport);
-        when(mascotasClient.obtenerMascotaPorId(2L)).thenReturn(baseMascota);
-        when(geoClient.obtenerUbicacionesCercanas(3L, 6)).thenReturn(Arrays.asList(10L, 11L));
-        
-        ReporteDTO candidatoReport = new ReporteDTO();
-        candidatoReport.setIdReporte(100L);
-        candidatoReport.setIdMascota(102L);
-        candidatoReport.setIdUbicacionReporte(10L);
-        candidatoReport.setTipoReporte("Mascota Encontrada / Avistamiento");
-        candidatoReport.setEspecieMascota("Perro");
-        
-        MascotaDTO candidatoMascota = MascotaDTO.builder().id(102L).nombre("Firulais clone").build();
-        
+    void procesarReporte_mascotaBaseNoExiste() {
+        ReporteDTO reporte = new ReporteDTO();
+        reporte.setIdUbicacionReporte(100L);
+        reporte.setIdMascota(10L);
+
+        when(mascotasClient.obtenerReportePorId(1L)).thenReturn(reporte);
+        when(mascotasClient.obtenerMascotaPorId(10L)).thenReturn(null);
+
+        coincidenciaService.procesarReporte(1L);
+
+        verify(geoClient, never()).obtenerUbicacionesCercanas(anyLong(), anyInt());
+    }
+
+    @Test
+    void procesarReporte_sinUbicacionesCercanas() {
+        ReporteDTO reporte = new ReporteDTO();
+        reporte.setIdUbicacionReporte(100L);
+        reporte.setIdMascota(10L);
+        MascotaDTO mascota = new MascotaDTO();
+
+        when(mascotasClient.obtenerReportePorId(1L)).thenReturn(reporte);
+        when(mascotasClient.obtenerMascotaPorId(10L)).thenReturn(mascota);
+        when(geoClient.obtenerUbicacionesCercanas(100L, 6)).thenReturn(Collections.emptyList());
+
+        coincidenciaService.procesarReporte(1L);
+
+        verify(mascotasClient, never()).buscarReportesCandidatos(any());
+    }
+
+    @Test
+    void procesarReporte_conCoincidencia() {
+        ReporteDTO reporteBase = new ReporteDTO();
+        reporteBase.setIdReporte(1L);
+        reporteBase.setIdUbicacionReporte(100L);
+        reporteBase.setIdMascota(10L);
+        reporteBase.setTipoReporte("Mascota Perdida");
+        reporteBase.setEspecieMascota("Perro");
+        reporteBase.setIdUsuario(1L);
+
+        MascotaDTO mascotaBase = new MascotaDTO();
+
+        ReporteDTO candidato = new ReporteDTO();
+        candidato.setIdReporte(2L);
+        candidato.setIdMascota(20L);
+        candidato.setIdUsuario(2L);
+
+        MascotaDTO mascotaCandidato = new MascotaDTO();
+
+        when(mascotasClient.obtenerReportePorId(1L)).thenReturn(reporteBase);
+        when(mascotasClient.obtenerMascotaPorId(10L)).thenReturn(mascotaBase);
+        when(geoClient.obtenerUbicacionesCercanas(100L, 6)).thenReturn(List.of(100L, 101L));
+
         when(mascotasClient.buscarReportesCandidatos(any(FiltroBusquedaMasivaDTO.class)))
-                .thenReturn(Collections.singletonList(candidatoReport));
-        when(mascotasClient.obtenerMascotaPorId(102L)).thenReturn(candidatoMascota);
-        
-        when(motorSimilitud.evaluar(baseMascota, candidatoMascota)).thenReturn(85.0);
-        when(repository.existsByReportePerdidaIdAndReporteHallazgoId(1L, 100L)).thenReturn(false);
+                .thenReturn(List.of(candidato));
+        when(mascotasClient.obtenerMascotaPorId(20L)).thenReturn(mascotaCandidato);
 
-        service.procesarReporte(1L);
+        when(motorSimilitud.evaluar(mascotaBase, mascotaCandidato)).thenReturn(85.0);
+        when(repository.existsByReportePerdidaIdAndReporteHallazgoId(1L, 2L)).thenReturn(false);
 
-        verify(repository, times(1)).save(any(Coincidencia.class));
+        coincidenciaService.procesarReporte(1L);
+
+        ArgumentCaptor<Coincidencia> coincidenciaCaptor = ArgumentCaptor.forClass(Coincidencia.class);
+        verify(repository).save(coincidenciaCaptor.capture());
+
+        Coincidencia guardada = coincidenciaCaptor.getValue();
+        assertEquals(1L, guardada.getReportePerdidaId());
+        assertEquals(2L, guardada.getReporteHallazgoId());
+        assertEquals(85.0, guardada.getPorcentajeSimilitud());
+        assertEquals(EstadoCoincidencia.PENDIENTE, guardada.getEstado());
+
+        verify(rabbitMQProducer).enviarNotificacion(
+                eq(1L), any(), any(), eq("COINCIDENCIA"), eq("/reportes/2"));
+        verify(rabbitMQProducer).enviarNotificacion(
+                eq(2L), any(), any(), eq("COINCIDENCIA"), eq("/reportes/1"));
+    }
+
+    @Test
+    void fallbackProcesarReporte_loggingNoLanzaExcepcion() {
+        coincidenciaService.fallbackProcesarReporte(1L, new RuntimeException("Error"));
     }
 }

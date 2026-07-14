@@ -10,6 +10,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 
 import static org.mockito.Mockito.when;
@@ -36,7 +38,10 @@ class NotificacionControllerTest {
                 .idUsuarioDestino(2L)
                 .titulo("Test")
                 .mensaje("Mensaje Test")
+                .tipo("ALERTA")
                 .leida(false)
+                .urlRedireccion("/home")
+                .fechaCreacion(LocalDateTime.of(2023, 10, 1, 10, 0))
                 .build();
     }
 
@@ -48,7 +53,10 @@ class NotificacionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].idNotificacion").value(1L))
-                .andExpect(jsonPath("$[0].titulo").value("Test"));
+                .andExpect(jsonPath("$[0].titulo").value("Test"))
+                .andExpect(jsonPath("$[0].tipo").value("ALERTA"))
+                .andExpect(jsonPath("$[0].urlRedireccion").value("/home"))
+                .andExpect(jsonPath("$[0].fechaCreacion").value("2023-10-01T10:00:00"));
     }
 
     @Test
