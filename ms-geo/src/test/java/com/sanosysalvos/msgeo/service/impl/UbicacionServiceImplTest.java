@@ -92,7 +92,7 @@ class UbicacionServiceImplTest {
     void obtenerUbicacionesEnRadio_shouldReturnList() {
         UbicacionReporte base = UbicacionReporte.builder()
                 .id(1L)
-                .zonaGeo(ZonaGeo.builder().id("88a649a463fffff").build())
+                .zonaGeo(ZonaGeo.builder().id("8828308281fffff").build())
                 .build();
         when(ubicacionReporteRepository.findById(1L)).thenReturn(Optional.of(base));
 

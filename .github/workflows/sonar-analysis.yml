@@ -1,4 +1,4 @@
-name: SonarQube Code Analysis
+name: Análisis de Código SonarQube
 
 on:
   push:
