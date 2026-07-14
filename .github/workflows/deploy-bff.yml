@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'bff-sanosysalvos/**'
+      - '!bff-sanosysalvos/src/test/**'
       - 'k8s/bff.yaml'
       - 'pom.xml'
 

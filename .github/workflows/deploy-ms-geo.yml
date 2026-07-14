@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'ms-geo/**'
+      - '!ms-geo/src/test/**'
       - 'k8s/ms-geo.yaml'
       - 'pom.xml'
 

@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'ms-mascotas/**'
+      - '!ms-mascotas/src/test/**'
       - 'k8s/ms-mascotas.yaml'
       - 'pom.xml'
 

@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'ms-notificaciones/**'
+      - '!ms-notificaciones/src/test/**'
       - 'k8s/ms-notificaciones.yaml'
       - 'pom.xml'
 

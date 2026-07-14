@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'ms-coincidencias/**'
+      - '!ms-coincidencias/src/test/**'
       - 'k8s/ms-coincidencias.yaml'
       - 'pom.xml'
 

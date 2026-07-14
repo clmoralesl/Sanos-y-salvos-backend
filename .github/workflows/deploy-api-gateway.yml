@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'api-gateway/**'
+      - '!api-gateway/src/test/**'
       - 'k8s/api-gateway.yaml'
       - 'pom.xml'
 
