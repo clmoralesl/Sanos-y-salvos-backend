@@ -1,11 +1,13 @@
 package com.sanosysalvos.mascotas.service.impl;
 
+import com.sanosysalvos.mascotas.dto.FiltroBusquedaMasivaDTO;
 import com.sanosysalvos.mascotas.dto.ReporteRequestDTO;
 import com.sanosysalvos.mascotas.dto.ReporteResponseDTO;
 import com.sanosysalvos.mascotas.entity.*;
 import com.sanosysalvos.mascotas.repository.*;
 import com.sanosysalvos.mascotas.service.MascotasIntegrationService;
 import com.sanosysalvos.mascotas.service.ReporteFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,6 +16,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,114 +26,186 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ReporteServiceImplTest {
+class ReporteServiceImplTest {
 
     @Mock
     private ReporteRepository reporteRepository;
-
     @Mock
     private TipoReporteRepository tipoReporteRepository;
-
     @Mock
     private EstadoReporteRepository estadoReporteRepository;
-
     @Mock
     private UsuarioRepository usuarioRepository;
-
     @Mock
     private MascotaRepository mascotaRepository;
-
     @Mock
     private MascotasIntegrationService integrationService;
-
     @Mock
     private ReporteFactory reporteFactory;
 
     @InjectMocks
-    private ReporteServiceImpl service;
+    private ReporteServiceImpl reporteService;
 
-    @Test
-    public void testCrearReporteUsuarioNotFound() {
-        ReporteRequestDTO request = ReporteRequestDTO.builder().build();
-        when(usuarioRepository.findByAuth0Id("auth0")).thenReturn(Optional.empty());
+    private Usuario usuario;
+    private Mascota mascota;
+    private Reporte reporte;
+    private ReporteRequestDTO request;
+    private ReporteResponseDTO response;
 
-        assertThrows(RuntimeException.class, () -> service.crearReporte(request, "auth0"));
+    @BeforeEach
+    void setUp() {
+        usuario = new Usuario();
+        usuario.setIdUsuario(1L);
+        usuario.setAuth0Id("auth0|123");
+
+        mascota = new Mascota();
+        mascota.setIdMascota(1L);
+
+        reporte = new Reporte();
+        reporte.setIdReporte(1L);
+        reporte.setUsuario(usuario);
+        reporte.setMascota(mascota);
+
+        request = new ReporteRequestDTO();
+        request.setIdMascota(1L);
+        request.setIdUbicacionReporte(1L);
+        request.setIdTipoReporte(1L);
+        request.setFechaIncidente(LocalDateTime.now());
+
+        response = new ReporteResponseDTO();
+        response.setIdReporte(1L);
     }
 
     @Test
-    public void testCrearReporteUbicacionFails() {
-        ReporteRequestDTO request = ReporteRequestDTO.builder()
-                .idMascota(1L)
-                .idTipoReporte(2L)
-                .idUbicacionReporte(3L)
-                .build();
-
-        Usuario usuario = Usuario.builder().idUsuario(1L).auth0Id("auth0").build();
-        Mascota mascota = Mascota.builder().idMascota(1L).build();
-        TipoReporte tipo = TipoReporte.builder().idTipoReporte(2L).descripcion("Perdida").build();
-
-        when(usuarioRepository.findByAuth0Id("auth0")).thenReturn(Optional.of(usuario));
+    void crearReporteExito() {
+        when(usuarioRepository.findByAuth0Id("auth0|123")).thenReturn(Optional.of(usuario));
         when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascota));
-        
-        when(integrationService.obtenerUbicacion(3L)).thenThrow(new RuntimeException("Conexión perdida"));
+        when(integrationService.obtenerUbicacion(1L)).thenReturn(ResponseEntity.ok().build());
+        when(reporteFactory.crearReporte(request, usuario, mascota)).thenReturn(reporte);
+        when(reporteRepository.save(any(Reporte.class))).thenReturn(reporte);
+        when(reporteFactory.mapearAResponse(reporte)).thenReturn(response);
 
-        assertThrows(RuntimeException.class, () -> service.crearReporte(request, "auth0"));
+        ReporteResponseDTO result = reporteService.crearReporte(request, "auth0|123");
+
+        assertNotNull(result);
+        assertEquals(1L, result.getIdReporte());
+        verify(integrationService).procesarReporteTrigger(1L);
     }
 
     @Test
-    public void testCrearReporteSuccess() {
-        ReporteRequestDTO request = ReporteRequestDTO.builder()
-                .idMascota(1L)
-                .idTipoReporte(2L)
-                .idUbicacionReporte(3L)
-                .fechaIncidente(LocalDateTime.now())
-                .build();
+    void crearReporteUsuarioNoEncontrado() {
+        when(usuarioRepository.findByAuth0Id("auth0|999")).thenReturn(Optional.empty());
 
-        Usuario usuario = Usuario.builder().idUsuario(1L).auth0Id("auth0").build();
-        Mascota mascota = Mascota.builder().idMascota(1L).build();
-        TipoReporte tipo = TipoReporte.builder().idTipoReporte(2L).descripcion("Perdida").build();
-        EstadoReporte estado = EstadoReporte.builder().idEstadoReporte(1L).descripcion("Activo").build();
+        Exception exception = assertThrows(RuntimeException.class, () -> 
+            reporteService.crearReporte(request, "auth0|999")
+        );
 
-        when(usuarioRepository.findByAuth0Id("auth0")).thenReturn(Optional.of(usuario));
+        assertEquals("Usuario no encontrado", exception.getMessage());
+    }
+
+    @Test
+    void crearReporteMascotaNoEncontrada() {
+        when(usuarioRepository.findByAuth0Id("auth0|123")).thenReturn(Optional.of(usuario));
+        when(mascotaRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(RuntimeException.class, () -> 
+            reporteService.crearReporte(request, "auth0|123")
+        );
+
+        assertEquals("Mascota no encontrada", exception.getMessage());
+    }
+
+    @Test
+    void obtenerTodosLosReportesExito() {
+        when(reporteRepository.findAll()).thenReturn(Arrays.asList(reporte));
+        when(reporteFactory.mapearAResponse(reporte)).thenReturn(response);
+
+        List<ReporteResponseDTO> result = reporteService.obtenerTodosLosReportes();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void obtenerReportePorIdExito() {
+        when(reporteRepository.findById(1L)).thenReturn(Optional.of(reporte));
+        when(reporteFactory.mapearAResponse(reporte)).thenReturn(response);
+
+        ReporteResponseDTO result = reporteService.obtenerReportePorId(1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getIdReporte());
+    }
+
+    @Test
+    void cerrarReporteExito() {
+        EstadoReporte estadoCerrado = new EstadoReporte();
+        estadoCerrado.setIdEstadoReporte(2L);
+        estadoCerrado.setDescripcion("Cerrado/Resuelto");
+
+        when(reporteRepository.findById(1L)).thenReturn(Optional.of(reporte));
+        when(estadoReporteRepository.findByDescripcion("Cerrado/Resuelto")).thenReturn(estadoCerrado);
+        when(reporteRepository.save(any(Reporte.class))).thenReturn(reporte);
+        when(reporteFactory.mapearAResponse(reporte)).thenReturn(response);
+
+        ReporteResponseDTO result = reporteService.cerrarReporte(1L, "auth0|123");
+
+        assertNotNull(result);
+        verify(reporteRepository).save(reporte);
+    }
+
+    @Test
+    void cerrarReporteSinPermisos() {
+        when(reporteRepository.findById(1L)).thenReturn(Optional.of(reporte));
+
+        Exception exception = assertThrows(RuntimeException.class, () -> 
+            reporteService.cerrarReporte(1L, "auth0|other")
+        );
+
+        assertEquals("No tiene permisos para cerrar este reporte", exception.getMessage());
+    }
+
+    @Test
+    void actualizarReporteExito() {
+        TipoReporte tipoReporte = new TipoReporte();
+        tipoReporte.setIdTipoReporte(1L);
+
+        when(reporteRepository.findById(1L)).thenReturn(Optional.of(reporte));
         when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascota));
-        
-        when(integrationService.obtenerUbicacion(3L)).thenReturn(ResponseEntity.ok().build());
+        when(tipoReporteRepository.findById(1L)).thenReturn(Optional.of(tipoReporte));
+        when(reporteRepository.save(any(Reporte.class))).thenReturn(reporte);
+        when(reporteFactory.mapearAResponse(reporte)).thenReturn(response);
 
-        Reporte createdReport = Reporte.builder()
-                .fechaIncidente(request.getFechaIncidente())
-                .idUbicacionReporte(3L)
-                .tipoReporte(tipo)
-                .estadoReporte(estado)
-                .usuario(usuario)
-                .mascota(mascota)
-                .build();
-                
-        when(reporteFactory.crearReporte(request, usuario, mascota)).thenReturn(createdReport);
+        ReporteResponseDTO result = reporteService.actualizarReporte(1L, request, "auth0|123");
 
-        Reporte savedReport = Reporte.builder()
-                .idReporte(100L)
-                .fechaRegistro(LocalDateTime.now())
-                .fechaIncidente(request.getFechaIncidente())
-                .idUbicacionReporte(3L)
-                .tipoReporte(tipo)
-                .estadoReporte(estado)
-                .usuario(usuario)
-                .mascota(mascota)
-                .build();
+        assertNotNull(result);
+        verify(reporteRepository).save(reporte);
+        verify(integrationService).procesarReporteTrigger(1L);
+    }
 
-        when(reporteRepository.save(any(Reporte.class))).thenReturn(savedReport);
+    @Test
+    void eliminarReporteExito() {
+        when(reporteRepository.findById(1L)).thenReturn(Optional.of(reporte));
 
-        ReporteResponseDTO expectedResponse = ReporteResponseDTO.builder()
-                .idReporte(100L)
-                .estadoReporte("Activo")
-                .build();
-                
-        when(reporteFactory.mapearAResponse(savedReport)).thenReturn(expectedResponse);
+        assertDoesNotThrow(() -> reporteService.eliminarReporte(1L, "auth0|123"));
+        verify(reporteRepository).delete(reporte);
+    }
 
-        ReporteResponseDTO response = service.crearReporte(request, "auth0");
+    @Test
+    void buscarReportesCandidatosExito() {
+        FiltroBusquedaMasivaDTO filtro = new FiltroBusquedaMasivaDTO();
+        filtro.setTipoReporteBuscado("Extraviado");
+        filtro.setEspecie("Perro");
+        filtro.setUbicacionesIds(Collections.singletonList(1L));
 
-        assertNotNull(response);
-        assertEquals(100L, response.getIdReporte());
-        assertEquals("Activo", response.getEstadoReporte());
+        when(reporteRepository.findByEstadoReporte_DescripcionIgnoreCaseAndTipoReporte_DescripcionIgnoreCaseAndMascota_Raza_Especie_NombreEspecieIgnoreCaseAndIdUbicacionReporteIn(
+                "Activo", "Extraviado", "Perro", filtro.getUbicacionesIds()))
+            .thenReturn(Arrays.asList(reporte));
+        when(reporteFactory.mapearAResponse(reporte)).thenReturn(response);
+
+        List<ReporteResponseDTO> result = reporteService.buscarReportesCandidatos(filtro);
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
     }
 }
