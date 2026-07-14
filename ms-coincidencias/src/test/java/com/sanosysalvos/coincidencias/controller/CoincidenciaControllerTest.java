@@ -1,7 +1,6 @@
 package com.sanosysalvos.coincidencias.controller;
 
 import com.sanosysalvos.coincidencias.domain.entity.Coincidencia;
-import com.sanosysalvos.coincidencias.domain.enums.EstadoCoincidencia;
 import com.sanosysalvos.coincidencias.service.CoincidenciaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +17,6 @@ import java.util.List;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,6 +28,9 @@ class CoincidenciaControllerTest {
     @Mock
     private CoincidenciaService coincidenciaService;
 
+    @Mock
+    private com.sanosysalvos.coincidencias.repository.CoincidenciaRepository coincidenciaRepository;
+
     @InjectMocks
     private CoincidenciaController coincidenciaController;
 
@@ -39,42 +40,42 @@ class CoincidenciaControllerTest {
     }
 
     @Test
-    void triggerCalculoCoincidencias_shouldReturnAccepted() throws Exception {
-        mockMvc.perform(post("/coincidencias/v1/coincidencias/calcular/100")
+    void procesarReporteTrigger_shouldReturnAccepted() throws Exception {
+        mockMvc.perform(post("/coincidencias/v1/coincidencias/trigger/100")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.message").value("Cálculo de coincidencias iniciado para el reporte 100"));
+                .andExpect(jsonPath("$.message").value("Procesamiento de coincidencias iniciado para el reporte 100"));
     }
 
     @Test
-    void getCoincidenciasPorReporte_shouldReturnList() throws Exception {
+    void obtenerPorPerdida_shouldReturnList() throws Exception {
         Coincidencia c = new Coincidencia();
-        c.setIdCoincidencia(1L);
+        c.setId(1L);
         c.setReportePerdidaId(100L);
-        c.setSimilitud(95.5);
+        c.setPorcentajeSimilitud(95.5);
 
-        when(coincidenciaService.obtenerCoincidenciasPorReporte(100L)).thenReturn(List.of(c));
+        when(coincidenciaRepository.findByReportePerdidaId(100L)).thenReturn(List.of(c));
 
-        mockMvc.perform(get("/coincidencias/v1/coincidencias/reporte/100")
+        mockMvc.perform(get("/coincidencias/v1/coincidencias/perdida/100")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].idCoincidencia").value(1))
-                .andExpect(jsonPath("$[0].similitud").value(95.5));
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].porcentajeSimilitud").value(95.5));
     }
 
     @Test
-    void actualizarEstadoCoincidencia_shouldReturnOk() throws Exception {
+    void obtenerPorHallazgo_shouldReturnList() throws Exception {
         Coincidencia c = new Coincidencia();
-        c.setIdCoincidencia(1L);
-        c.setEstado(EstadoCoincidencia.CONFIRMADA);
+        c.setId(2L);
+        c.setReporteHallazgoId(200L);
+        c.setPorcentajeSimilitud(85.5);
 
-        when(coincidenciaService.actualizarEstadoCoincidencia(1L, "CONFIRMADA")).thenReturn(c);
+        when(coincidenciaRepository.findByReporteHallazgoId(200L)).thenReturn(List.of(c));
 
-        mockMvc.perform(put("/coincidencias/v1/coincidencias/1/estado")
-                .param("nuevoEstado", "CONFIRMADA")
+        mockMvc.perform(get("/coincidencias/v1/coincidencias/hallazgo/200")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.idCoincidencia").value(1))
-                .andExpect(jsonPath("$.estado").value("CONFIRMADA"));
+                .andExpect(jsonPath("$[0].id").value(2))
+                .andExpect(jsonPath("$[0].porcentajeSimilitud").value(85.5));
     }
 }
