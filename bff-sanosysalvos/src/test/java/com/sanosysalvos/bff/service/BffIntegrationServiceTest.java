@@ -107,6 +107,15 @@ class BffIntegrationServiceTest {
     }
 
     @Test
+    void obtenerCoincidenciasPorHallazgo_shouldReturnList() {
+        List<Map<String, Object>> mockList = new ArrayList<>();
+        mockList.add(mockMap);
+        when(coincidenciasClient.obtenerPorHallazgo(1L)).thenReturn(mockList);
+        List<Map<String, Object>> result = service.obtenerCoincidenciasPorHallazgo(1L);
+        assertEquals(mockList, result);
+    }
+
+    @Test
     void fallbackObtenerCoincidencias_shouldReturnEmptyList() {
         List<Map<String, Object>> result = service.fallbackObtenerCoincidencias(1L, new RuntimeException("Error"));
         assertEquals(0, result.size());

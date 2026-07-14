@@ -3,17 +3,19 @@ package com.sanosysalvos.apigateway.filter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.time.Instant;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -24,56 +26,49 @@ import static org.mockito.Mockito.when;
 class PropagateUserHeaderFilterTest {
 
     private PropagateUserHeaderFilter filter;
-    private GatewayFilterChain filterChain;
+    private GatewayFilterChain chain;
 
     @BeforeEach
     void setUp() {
         filter = new PropagateUserHeaderFilter();
-        filterChain = mock(GatewayFilterChain.class);
+        chain = mock(GatewayFilterChain.class);
     }
 
     @Test
-    void filter_withJwtPrincipal_shouldAddHeader() {
+    void testFilterWithJwtPrincipal() {
         MockServerHttpRequest request = MockServerHttpRequest.get("/test").build();
         ServerWebExchange exchange = MockServerWebExchange.from(request);
 
-        Jwt jwt = mock(Jwt.class);
-        when(jwt.getSubject()).thenReturn("auth0|123456");
+        Jwt jwt = new Jwt("token", Instant.now(), Instant.now().plusSeconds(3600),
+                Map.of("alg", "none"), Map.of("sub", "auth0|12345"));
+        Authentication authentication = new JwtAuthenticationToken(jwt);
+        SecurityContext context = new SecurityContextImpl(authentication);
 
-        TestingAuthenticationToken authentication = new TestingAuthenticationToken(jwt, null);
-        SecurityContext securityContext = new SecurityContextImpl(authentication);
-
-        when(filterChain.filter(any(ServerWebExchange.class))).thenAnswer(invocation -> {
-            ServerWebExchange modifiedExchange = invocation.getArgument(0);
-            HttpHeaders headers = modifiedExchange.getRequest().getHeaders();
-            assertEquals("auth0|123456", headers.getFirst("X-Auth0-Id"));
+        when(chain.filter(any(ServerWebExchange.class))).thenAnswer(invocation -> {
+            ServerWebExchange ex = invocation.getArgument(0);
+            assertEquals("auth0|12345", ex.getRequest().getHeaders().getFirst("X-Auth0-Id"));
             return Mono.empty();
         });
 
-        Mono<Void> result = filter.filter(exchange, filterChain)
-                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
+        Mono<Void> result = filter.filter(exchange, chain)
+                .contextWrite(org.springframework.security.core.context.ReactiveSecurityContextHolder.withSecurityContext(Mono.just(context)));
 
         StepVerifier.create(result)
                 .verifyComplete();
     }
 
     @Test
-    void filter_withoutJwtPrincipal_shouldNotAddHeader() {
+    void testFilterWithoutJwtPrincipal() {
         MockServerHttpRequest request = MockServerHttpRequest.get("/test").build();
         ServerWebExchange exchange = MockServerWebExchange.from(request);
 
-        TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "pass");
-        SecurityContext securityContext = new SecurityContextImpl(authentication);
-
-        when(filterChain.filter(any(ServerWebExchange.class))).thenAnswer(invocation -> {
-            ServerWebExchange modifiedExchange = invocation.getArgument(0);
-            HttpHeaders headers = modifiedExchange.getRequest().getHeaders();
-            assertNull(headers.getFirst("X-Auth0-Id"));
+        when(chain.filter(any(ServerWebExchange.class))).thenAnswer(invocation -> {
+            ServerWebExchange ex = invocation.getArgument(0);
+            assertNull(ex.getRequest().getHeaders().getFirst("X-Auth0-Id"));
             return Mono.empty();
         });
 
-        Mono<Void> result = filter.filter(exchange, filterChain)
-                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
+        Mono<Void> result = filter.filter(exchange, chain);
 
         StepVerifier.create(result)
                 .verifyComplete();
