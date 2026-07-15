@@ -14,6 +14,14 @@ public class RabbitMQConfig {
     @Value("${notificaciones.exchange.name:notificaciones_exchange}")
     private String exchangeName;
 
+    @Value("${rabbitmq.queue.reportes:reportes_queue}")
+    private String reportesQueueName;
+
+    @Bean
+    public org.springframework.amqp.core.Queue reportesQueue() {
+        return new org.springframework.amqp.core.Queue(reportesQueueName, true);
+    }
+
     @Bean
     public DirectExchange notificacionesExchange() {
         return new DirectExchange(exchangeName);
